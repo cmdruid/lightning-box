@@ -8,5 +8,6 @@ async function handler(
   res: NextApiResponse
 ) {
   req.session.destroy()
+  console.log('clear:', req.session)
   return res.status(200).json(req.session)
 }

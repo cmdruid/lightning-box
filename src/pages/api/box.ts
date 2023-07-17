@@ -1,6 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-
 import { withSessionRoute } from '@/lib/sessions'
+
+import {
+  get_session,
+  verify_token
+} from '@/lib/box'
 
 export default withSessionRoute(handler)
 
@@ -8,17 +12,27 @@ async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const { body, headers, method } = req
 
-  const { method } = req
-
-  if ( method !== 'GET') {
+  if (
+    method !== 'POST' || 
+    typeof body !== 'object'
+  ) {
     return res.status(400).end()
   }
 
-  console.log('GET session:', req.session)
+  const { token } = headers
+
+  if (!verify_token(token)) {
+    res.status(403).end(); return
+  }
+
+  console.log('body:', body)
 
   try {
-    return res.status(200).json(req.session)
+    const state = await get_session(body)
+    console.log('state:', state)
+    return res.status(200).json(state)
   } catch (err) {
     console.error(err)
     const { message } = err as Error

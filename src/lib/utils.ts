@@ -3,6 +3,8 @@ const dc = new TextDecoder()
 
 const crypto = globalThis.crypto
 
+export const now = () => Math.floor(Date.now() / 1000)
+
 export function sleep(ms : number = 500) {
   return new Promise(res => setTimeout(res, ms))
 }
@@ -16,9 +18,4 @@ export function normalizeParams (
     p[k] = v
   }
   return p 
-}
-
-export function getRandString() : string {
-  const chars = crypto.getRandomValues(new Uint8Array(32)).map(n => n % 88 + 40)
-  return btoa(dc.decode(chars))
 }
