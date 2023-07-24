@@ -1,9 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { StoreController } from '@/model/store'
 import { withSessionAuth } from '@/lib/middleware'
 
+import { now } from '@/lib/utils'
+
 export default withSessionAuth(handler)
+
+const DEFAULT_TIMEOUT = 60 * 5
 
 async function handler (
   req: NextApiRequest,
@@ -24,7 +27,11 @@ async function handler (
   }
 
   try {
-    const ret = await store.update({ reserve_id : session.id })
+    const ret = await store.update({ 
+      status     : 'reserved',
+      reserve_id : session.id,
+      timeout    : now() + DEFAULT_TIMEOUT
+    })
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

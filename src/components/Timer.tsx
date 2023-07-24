@@ -5,17 +5,20 @@ import { now } from '@/lib/utils'
 export default function Timer (
   { timeout } : { timeout : number }
 ) {
-  const [ timer, setTimer ] = useState(timeout - now())
+  const [ timer, setTimer ] = useState(2 + (timeout) - now())
 
   useEffect(() => {
-    const interval = setInterval(() => { setTimer(timer - 1)}, 1000)
-    return clearInterval(interval)
-  }, [])
+    if (timer <= 0) {
+      window.location.reload()
+    }
+    const interval = setInterval(() => setTimer((prev) => prev - 1), 1000)
+    return () => clearInterval(interval)
+  }, [ timer ])
 
   return (
    <div className="container">
       <div className="content">
-        <p>Reservation expires in: {timer - now() }</p>
+        { timeout  && <p>Reservation expires in {timer} seconds. </p> }
       </div>
     </div>
   )

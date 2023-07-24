@@ -12,10 +12,7 @@ async function handler (
 ) {
   const { body, method, state, store } = req
 
-  if (
-    method !== 'POST' || 
-    typeof body !== 'object'
-  ) {
+  if (method !== 'POST' || typeof body !== 'object') {
     return res.status(400).end()
   }
 
@@ -40,7 +37,6 @@ async function handler (
       ret.state = await store.update({ box_data: parsed.data })
     }
 
-    console.log('box res:', state)
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

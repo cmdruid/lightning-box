@@ -1,9 +1,6 @@
-// import { BoxData } from '../src/schema/index.js'
-
-const { LOCKBOX_KEY } = process.env
-
-const API_HOST = 'https://lightning-box-cmdruid.vercel.app'
-const endpoint = `${API_HOST}/api/box`
+const LOCKBOX_KEY = 'TjY9XC9BVShZPF1SMkBPaWF3QTMsPTZ2QD5DOUxrVWc='
+const API_HOST    = 'http://localhost:3000' // 'https://lightning-box-cmdruid.vercel.app'
+const endpoint    = `${API_HOST}/api/box`
 
 export async function box_post (data : any) {
 
@@ -17,7 +14,7 @@ export async function box_post (data : any) {
     body    : JSON.stringify(data)
   }
 
-  const res = await fetch('./api/box', req)
+  const res = await fetch(endpoint, req)
 
   if (!res.ok) {
     const { status, statusText } = res

@@ -5,7 +5,7 @@ export default function Status (
 ) {
   return (
    <div className="container">
-      <div className="content">
+      <div className="status">
         <p>Box Status:</p>
         <pre>{JSON.stringify(data, null, 2)}</pre>
       </div>

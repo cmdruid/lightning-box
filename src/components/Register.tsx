@@ -12,12 +12,13 @@ export default function Register () {
     } else {
       const json = await res.json()
       console.log('registration:', json)
+      window.location.reload()
     }
   }
 
   useEffect(() => {
     if (typeof toast === 'string') {
-      const timeout = setTimeout(() => setToast(undefined), 5000)
+      setTimeout(() => setToast(undefined), 5000)
     }
   })
 

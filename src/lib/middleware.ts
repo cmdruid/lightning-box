@@ -94,6 +94,8 @@ export function withSessionAuth (
       session.id === reserve_id
     ) {
       req.session.state = state
+    } else {
+      req.session.state = undefined
     }
 
     if (

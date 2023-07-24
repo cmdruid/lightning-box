@@ -2,8 +2,10 @@ import {
   DeleteOptions,
   Document,
   Filter,
+  FindOneAndUpdateOptions,
   FindOptions,
   InsertOneOptions,
+  ModifyResult,
   UpdateFilter,
   UpdateOptions
 } from 'mongodb'
@@ -114,22 +116,21 @@ export class Controller<T extends Document> {
   }
 
   async _update (
-    template   : Partial<T> = {},
-    filter     : Filter<Document>,
-    update    ?: UpdateFilter<T>,
-    options   ?: UpdateOptions
+    data     : Partial<T> = {},
+    filter   : Filter<Document> = {},
+    options ?: FindOneAndUpdateOptions
   ) : Promise<T> {
-    const data = this.get_template(template)
     const controller = await getCollection(this.model)
-    const res = await controller.updateOne(
-      filter, 
-      { ...update, $set: data },
-      options
+    const res = await controller.findOneAndUpdate(
+      filter,
+      { $set: data },
+      { ...options }
     )
-    if (res.acknowledged && res.modifiedCount === 1) {
-      return data
+    console.log('update:', res)
+    if (res.ok) {
+      return res.value as unknown as T
     }
-    throw new Error('Update operation failed!')
+    throw new Error('Update document failed!')
   }
 
   async _remove (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { SessionData } from '@/schema'
+import { SessionData, StoreData } from '@/schema'
 
 import Loading     from '@/components/Loading'
 import Invoice     from '@/components/Invoice'
@@ -40,7 +40,7 @@ export default function Home () {
       <div className="main">
         { status === 'loading'  && <Loading />  }
         { status === 'ready'    && <Register /> }
-        { status === 'reserved' && <Reservation data={state} /> }
+        { status === 'reserved' && <Reservation data={state as StoreData} /> }
         { status === 'invoice'  && <Invoice data={invoice}   /> }
         { status === 'receipt'  && <Receipt data={receipt}   /> }
       </div>
@@ -49,26 +49,27 @@ export default function Home () {
 }
 
 function get_status (session ?: SessionData) : string {
-  if (session === undefined) return 'loading'
+  if (session === undefined) {
+    return 'loading'
+  }
+
   const { state, invoice, receipt } = session
 
-  if (
-    state !== undefined &&
-    invoice === undefined
-  ) {
+  if (state === undefined) {
+    return 'ready'
+  } else {
+
+    if (
+      invoice !== undefined &&
+      receipt === undefined
+    ) {
+      return 'invoice'
+    }
+
+    if (receipt !== undefined) {
+      return 'receipt'
+    }
+
     return 'reserved'
   }
-
-  if (
-    invoice !== undefined &&
-    receipt === undefined
-  ) {
-    return 'invoice'
-  }
-
-  if (receipt !== undefined) {
-    return 'receipt'
-  }
-
-  return 'ready'
 }

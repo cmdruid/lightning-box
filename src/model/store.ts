@@ -20,31 +20,36 @@ export const STORE_DEFAULTS = {
 
 export const RESERVE_DURATION = 30
 
+const box_schema = {
+  bsonType : [ 'object', 'null' ],
+  required : [ 'amount', 'code', 'locked', 'status' ],
+  properties : {
+    amount : { bsonType : [ 'number', 'null' ] },
+    code   : { bsonType : [ 'number', 'null' ] },
+    locked : { bsonType : 'bool' },
+    status : { enum : [ 'ready', 'reserved', 'deposit', 'locked' ] }
+  }
+}
+
 const schema = {
 
   bsonType: 'object',
 
-  required: [ 'address', 'amount', 'invoice', 'is_paid', 'session_id', 'timestamp' ],
+  required: [ 
+    'box_data',   'invoice',    'recipient', 
+    'receipt_id', 'reserve_id', 'status', 
+    'timeout',    'timestamp' 
+  ],
 
   properties : {
-    address  : {
-      bsonType : [ 'string', 'null' ]
-    },
-    amount : {
-      bsonType : [ 'number', 'null' ]
-    },
-    invoice  : {
-      bsonType : [ 'string', 'null' ]
-    },
-    is_paid  : {
-      bsonType : 'bool'
-    },
-    session_id : {
-      bsonType : 'string'
-    },
-    timestamp : {
-      bsonType : 'number'
-    }
+    box_data   : box_schema,
+    invoice    : { bsonType : [ 'string', 'null' ] },
+    recipient  : { bsonType : [ 'string', 'null' ] },
+    receipt_id : { bsonType : [ 'string', 'null' ] },
+    reserve_id : { bsonType : [ 'string', 'null' ] },
+    status     : { bsonType : 'string' },
+    timeout    : { bsonType : [ 'number', 'null' ] },
+    timestamp  : { bsonType : 'number' }
   }
 }
 
@@ -54,7 +59,7 @@ const StoreModel = {
   indexes: [
     {
       name   : '_lookup_',
-      key    : { address: 1, invoice: 1, timestamp: -1 },
+      key    : { timestamp: -1 },
       unique : true
     }
   ],
@@ -93,18 +98,21 @@ export class StoreController extends Controller<StoreData> {
       ? await this._create()
       : await this._hook(store)
 
+    console.log('store:', store)
+
     return store
   }
 
   async reset () : Promise<StoreData> {
     return this._update(
         STORE_DEFAULTS,
+        {},
         { sort: { timestamp: -1 } }
       )
   }
 
   async update (template : Partial<StoreData>) : Promise<StoreData> {
-    return this._update(template, { sort: { timestamp: -1 } })
+    return this._update(template, {}, { sort: { timestamp: -1 } })
   }
 }
 

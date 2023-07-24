@@ -1,7 +1,9 @@
 import { useState } from 'react'
 
-export default function Form () {
-  const [ address, setAddress ] = useState('')
+export default function Form (
+  { addr } : { addr ?: string }
+) {
+  const [ address, setAddress ] = useState(addr)
 
   async function reserve () {
     const res  = await fetch(`./api/reserve/update?address=${address}`)
@@ -12,7 +14,7 @@ export default function Form () {
   return (
     <div className="container">
       <div className="content">
-        <p>Enter your lightning address to start:</p>
+        <p>Enter the lightning address to use for payment:</p>
         <div className="form">
           <input
             name="address"
@@ -20,7 +22,7 @@ export default function Form () {
             onChange={e => setAddress(e.target.value)}
             placeholder="yourname@lightning.address"
           ></input>
-          <button onClick={reserve}>Reserve Box</button>
+          <button onClick={reserve}>Update Address</button>
         </div>
       </div>
     </div>
