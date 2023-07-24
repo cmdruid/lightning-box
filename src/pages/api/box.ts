@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withTokenAuth } from '@/lib/middleware'
-import { schema }  from '@/schema'
+import {schema }   from '@/schema'
 import { is_diff } from '@/lib/utils'
 
 export default withTokenAuth(handler)
@@ -31,7 +31,15 @@ async function handler (
       amount <= 100
     )
 
-    const ret = { state, amount_ok }
+    const addr_ok = state.recipient !== null
+    const is_paid = state.receipt   !== null
+
+    const ret = {
+      state,
+      amount_ok,
+      addr_ok,
+      is_paid,
+    }
 
     if (is_diff(parsed.data, state.box_data)) {
       ret.state = await store.update({ box_data: parsed.data })

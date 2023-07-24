@@ -1,4 +1,4 @@
-export type BoxStatus   = 'ready' | 'reserved' | 'deposit' | 'locked'
+export type BoxState    = 'await_addr' | 'await_door' | 'depositing' | 'locked'
 export type StoreStatus = 'ready' | 'reserved' | 'invoice' | 'paid'
 
 declare module 'iron-session' {
@@ -7,9 +7,8 @@ declare module 'iron-session' {
 
 export interface BoxData {
   amount : number | null
-  code   : number | null
-  locked : boolean
-  status : BoxStatus
+  code   : string | null
+  state  : BoxState
 }
 
 export interface SessionData {

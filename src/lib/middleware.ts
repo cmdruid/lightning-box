@@ -31,6 +31,8 @@ export function withMiddleware  (
   ) => {
     const { body, method } = req
 
+    console.log('body:', body)
+
     if (method === 'POST' && typeof body === 'string') {
       try {
         req.body = JSON.parse(body)

@@ -22,12 +22,11 @@ export const RESERVE_DURATION = 30
 
 const box_schema = {
   bsonType : [ 'object', 'null' ],
-  required : [ 'amount', 'code', 'locked', 'status' ],
+  required : [ 'amount', 'code', 'state' ],
   properties : {
     amount : { bsonType : [ 'number', 'null' ] },
-    code   : { bsonType : [ 'number', 'null' ] },
-    locked : { bsonType : 'bool' },
-    status : { enum : [ 'ready', 'reserved', 'deposit', 'locked' ] }
+    code   : { bsonType : [ 'string', 'null' ] },
+    state  : { enum : [ 'await_addr', 'await_door', 'depositing', 'locked'] }
   }
 }
 

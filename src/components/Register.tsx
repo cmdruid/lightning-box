@@ -34,7 +34,7 @@ export default function Register () {
             onChange={e => setCode(e.target.value)}
             placeholder="123456 ..."
           ></input>
-          <button onClick={register}>Reserve Box</button>
+          <button onClick={register}>Login</button>
         </div>
       </div>
     </div>

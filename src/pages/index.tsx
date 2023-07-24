@@ -29,7 +29,7 @@ export default function Home () {
     if (session === undefined) get_session()
     const interval = setInterval(() => get_session(), REFRESH_TIMER)
     return () => clearInterval(interval)
-  }, [])
+  }, [ session ])
 
   return (
     <>
@@ -38,37 +38,34 @@ export default function Home () {
         <p>Peer-to-peer personal drop-box on the ligthning network.</p>
       </div>
       <div className="main">
+        
         { status === 'loading'  && <Loading />  }
-        { status === 'ready'    && <Register /> }
+        { status === 'ready'    && <Register /> } 
         { status === 'reserved' && <Reservation data={state as StoreData} /> }
-        { status === 'invoice'  && <Invoice data={invoice}   /> }
-        { status === 'receipt'  && <Receipt data={receipt}   /> }
+        { status === 'invoice'  && <Invoice data={invoice as string}   /> }
+        { status === 'receipt'  && <Receipt data={receipt as string}   /> }
       </div>
     </>
   )
 }
 
 function get_status (session ?: SessionData) : string {
+
   if (session === undefined) {
     return 'loading'
   }
 
-  const { state, invoice, receipt } = session
+  const { invoice, reserve, receipt, is_auth } = session
 
-  if (state === undefined) {
-    return 'ready'
-  } else {
+  if (!is_auth) return 'login'
+  if (reserve === null) return 'available'
+  if (invoice === null) return 'reserved'
+    return 'invoice'
+  }
 
-    if (
-      invoice !== undefined &&
-      receipt === undefined
-    ) {
-      return 'invoice'
-    }
-
-    if (receipt !== undefined) {
-      return 'receipt'
-    }
+  if (receipt !== null) {
+    return 'receipt'
+  }
 
     return 'reserved'
   }

@@ -3,9 +3,8 @@ import { reset_store } from './reset.js'
 
 box_post({
   amount : 5,
-  code   : 12345,
-  locked : false,
-  status : 'ready'
+  code   : '12345',
+  state  : 'await_addr'
 })
 
 // reset_store()
