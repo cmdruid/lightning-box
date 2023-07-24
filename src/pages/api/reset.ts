@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withTokenAuth } from '@/lib/middleware'
-import { schema }  from '@/schema'
-import { is_diff } from '@/lib/utils'
+import { schema }        from '@/schema'
 
 export default withTokenAuth(handler)
 
@@ -10,7 +9,7 @@ async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { body, method, state, store } = req
+  const { body, method, store } = req
 
   if (
     method !== 'POST' || 
@@ -26,22 +25,11 @@ async function handler (
       return res.status(422).end()
     }
 
-    const { amount } = parsed.data
-  
-    const amount_ok = (
-      amount !== null &&
-      amount > 0      &&
-      amount <= 100
-    )
+    const ret = await store.update({ ...body })
 
-    const ret = { state, amount_ok }
-
-    if (is_diff(parsed.data, state.box_data)) {
-      ret.state = await store.update({ box_data: parsed.data })
-    }
-
-    console.log('box res:', state)
     return res.status(200).json(ret)
+
+    // return res.status(400).json({ message : 'The box is currently reserved!'})
   } catch (err) {
     console.error(err)
     const { message } = err as Error

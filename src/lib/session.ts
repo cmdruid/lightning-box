@@ -13,7 +13,7 @@ const sessionOptions = {
   },
 }
 
-export function withSessionRoute(handler : NextApiHandler) {
+export function withSession(handler : NextApiHandler) {
   return withIronSessionApiRoute(handler, sessionOptions);
 }
 

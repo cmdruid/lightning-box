@@ -57,11 +57,11 @@ export class Controller<T extends Document> {
     return this._model
   }
 
-  format (template ?: Partial<T>) : T {
+  get_template (template ?: Partial<T>) : T {
     return { ...this.defaults, ...template }
   }
 
-  async list (
+  async _list (
     filter   : Filter<Document> = {},
     options ?: FindOptions<Document>
   ) : Promise<T[]> {
@@ -69,7 +69,7 @@ export class Controller<T extends Document> {
     return controller.find<T>(filter, options).toArray()
   }
 
-  async get (
+  async _get (
     filter   : Filter<Document>,
     options ?: FindOptions<Document>
   ) : Promise<T | null> {
@@ -77,11 +77,11 @@ export class Controller<T extends Document> {
     return controller.findOne<T>(filter, options)
   }
 
-  async create (
+  async _create (
     template ?: Partial<T>,
     options  ?: InsertOneOptions
   ) : Promise<T> {
-    const data = this.format(template)
+    const data = this.get_template(template)
     const controller = await getCollection(this.model)
     const res = await controller.insertOne(data, options)
     if (res.acknowledged) {
@@ -90,13 +90,13 @@ export class Controller<T extends Document> {
     throw new Error('Create operation failed!')
   }
 
-  async set (
+  async _set (
     template   : T,
     filter     : Filter<Document>,
     update    ?: UpdateFilter<T>,
     options   ?: UpdateOptions
   ) : Promise<T> {
-    const data = this.format(template)
+    const data = this.get_template(template)
     const controller = await getCollection(this.model)
     const res = await controller.updateOne (
       filter,
@@ -113,13 +113,13 @@ export class Controller<T extends Document> {
     throw new Error('Set operation failed!')
   }
 
-  async update (
+  async _update (
     template   : Partial<T> = {},
     filter     : Filter<Document>,
     update    ?: UpdateFilter<T>,
     options   ?: UpdateOptions
   ) : Promise<T> {
-    const data = this.format(template)
+    const data = this.get_template(template)
     const controller = await getCollection(this.model)
     const res = await controller.updateOne(
       filter, 
@@ -132,7 +132,7 @@ export class Controller<T extends Document> {
     throw new Error('Update operation failed!')
   }
 
-  async remove (
+  async _remove (
     filter     : Filter<Document>,
     options   ?: DeleteOptions
   ) : Promise<void> {
@@ -144,7 +144,7 @@ export class Controller<T extends Document> {
     throw new Error('Delete operation failed!')
   }
 
-  async clear (
+  async _clear (
     filter     : Filter<Document> = {},
     options   ?: DeleteOptions
   ) : Promise<number> {
