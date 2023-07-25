@@ -8,8 +8,8 @@ async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { method, query, session, state, store } = req
-  const { deposit_id, deposit, status } = state
+  const { method, session, state, store } = req
+  const { deposit_id, deposit, status }   = state
 
   if (
     method  !== 'GET'      ||

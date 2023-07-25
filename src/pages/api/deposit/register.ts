@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionAuth } from '@/lib/middleware'
 
 import { now } from '@/lib/utils'
+import { schema } from '@/schema'
 
 export default withSessionAuth(handler)
 
@@ -22,9 +23,9 @@ async function handler (
     return res.status(400).end()
   }
 
-  // if (!validate_address(address)) {
-  //   return res.status(422).end()
-  // }
+  if (!await validate_address(address)) {
+    return res.status(422).end()
+  }
 
   try {
     const ret = await store.update({ 
@@ -41,6 +42,9 @@ async function handler (
   }
 }
 
-function validate_address(address : string) : boolean {
-  return true
+async function validate_address (
+  address : string
+) : Promise<boolean> {
+  const res = await schema.address.spa(address)
+  return res.success
 }
