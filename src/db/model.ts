@@ -1,5 +1,5 @@
 const deposit = {
-  bsonType : 'object',
+  bsonType : [ 'object', 'null' ],
   required : [ 'amount', 'state' ],
   properties : {
     address : { bsonType : [ 'string', 'null' ] },
@@ -9,7 +9,7 @@ const deposit = {
 }
 
 const invoice = {
-  bsonType : 'object',
+  bsonType : [ 'object', 'null' ],
   required : [ 'invoice_id', 'receipt_id' ],
   properties : {
     invoice_id : { bsonType : 'string' },
@@ -21,15 +21,18 @@ const schema = {
 
   bsonType: 'object',
 
-  required: [ 'status', 'timestamp' ],
+  required: [
+    'deposit',      'invoice',    'deposit_id', 'invoice_id',
+    'session_code', 'session_id', 'status',     'timestamp'
+  ],
 
   properties : {
     deposit,
     invoice,
-    deposit_id   : { bsonType : 'string' },
-    invoice_id   : { bsonType : 'string' },
+    deposit_id   : { bsonType : [ 'string', 'null' ] },
+    invoice_id   : { bsonType : [ 'string', 'null' ] },
     session_id   : { bsonType : [ 'string', 'null' ] },
-    session_code : { bsonType : 'string' },
+    session_code : { bsonType : [ 'string', 'null' ] },
     status       : { bsonType : 'string' },
     timestamp    : { bsonType : 'number' }
   }

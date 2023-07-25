@@ -96,7 +96,7 @@ export function withSessionAuth (
     }
 
     if (
-      typeof session_id === 'string' &&
+      session_id !== null &&
       session.id === session_id
     ) {
       req.session.is_auth   = true
@@ -106,19 +106,21 @@ export function withSessionAuth (
       req.session.status    = 'login'
     }
 
-    if (session_code === undefined) {
+    if (session_code === null) {
       req.session.status  = 'loading'
     }
 
     if (
-      deposit_id !== undefined && 
+      deposit_id !== null &&
+      deposit    !== null &&
       session.id === deposit_id
     ) {
       req.session.deposit = deposit
     }
 
     if (
-      invoice_id !== undefined && 
+      invoice_id !== null && 
+      invoice    !== null &&
       session.id === invoice_id
     ) {
       req.session.invoice = invoice

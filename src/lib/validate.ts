@@ -1,5 +1,5 @@
 import { Buff }   from '@cmdcode/buff-utils'
-import { config } from '@/schema'
+import { StoreData, config } from '@/schema'
 import { now } from './utils'
 
 const { MAX_AMOUNT, SESSION_TIMEOUT } = config
@@ -25,6 +25,15 @@ export function address_ok (addr ?: string) {
   } catch {
     return false
   }
+}
+
+export function reserve_expired (data : StoreData) {
+  const { deposit, status, timestamp } = data
+  return (
+    status         !== 'invoice'  &&
+    deposit?.state !== 'locked'   &&
+    timestamp + SESSION_TIMEOUT < now()
+  )
 }
 
 export function session_expired (stamp : number) {

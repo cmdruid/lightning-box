@@ -18,9 +18,16 @@ export class StoreController extends Controller<StoreData> {
 
   async _hook (data : StoreData) : Promise<StoreData> {
     const { status, timestamp } = data
+    let update : Partial<StoreData> = {}
     const parsed_status = get_status(data)
+    if (validate.reserve_expired(data)) {
+      update.deposit_id = null
+      update.deposit    = null
+      update.status     = 'ready'
+    }
     if (validate.session_expired(timestamp)) {
-      data = await this.update({ session_id : null })
+      update.session_id = null
+      update.status     = 'login'
     }
     if (status !== parsed_status) {
       data = await this.update({ status : parsed_status })

@@ -9,12 +9,12 @@ const box_data = z.object({
 })
 
 const store_data = z.object({
-  deposit_id   : z.string().optional(),
-  deposit      : z.string().optional(),
-  invoice_id   : z.string().optional(),
-  invoice      : z.string().optional(),
-  session_id   : z.string().optional(),
-  session_code : z.string().optional(),
+  deposit_id   : z.string().nullish(),
+  deposit      : z.string().nullish(),
+  invoice_id   : z.string().nullish(),
+  invoice      : z.string().nullish(),
+  session_id   : z.string().nullish(),
+  session_code : z.string().nullish(),
   status       : z.string(),
   timestamp    : z.number()
 })

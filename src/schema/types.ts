@@ -40,11 +40,11 @@ export interface StoreData extends StoreSchema {
 }
 
 export interface StoreSchema {
-  deposit      ?: DepositData
-  invoice      ?: InvoiceData
-  deposit_id   ?: string
-  invoice_id   ?: string
-  session_id   ?: string | null
-  session_code ?: string
-  timestamp     : number
+  deposit      : DepositData | null
+  invoice      : InvoiceData | null
+  deposit_id   : string | null
+  invoice_id   : string | null
+  session_id   : string | null
+  session_code : string | null
+  timestamp    : number
 }

@@ -22,7 +22,7 @@ export default function Register (
   return (
     <div className="container">
       <div className="content">
-        <p>Deposit funds into the box, then click to create invoice:</p>
+        <p>Deposit funds into the box, then click the button to create an invoice:</p>
         <Toast />
         <div className="form">
           <button onClick={confirm}>Create Invoice</button>
