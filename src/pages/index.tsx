@@ -1,35 +1,15 @@
-import { useEffect, useState } from 'react'
+import Loading  from '@/components/Loading'
+import Login    from '@/components/Login'
+import Timer    from '@/components/Timer'
+import Register from '@/components/Register'
+import Deposit  from '@/components/Deposit'
+import Invoice  from '@/components/Invoice'
 
-import { SessionData, StoreData } from '@/schema'
-
-import Loading     from '@/components/Loading'
-import Invoice     from '@/components/Invoice'
-import Receipt     from '@/components/Receipt'
-import Register    from '@/components/Register'
-import Reservation from '@/components/Reservation'
-
-const REFRESH_TIMER = 1000 * 10
+import { useSession } from '@/hooks/useSession'
 
 export default function Home () {
-  const [ session, setSession ] = useState<SessionData>()
-
-  const status = get_status(session)
-
-  const { state, invoice, receipt } = session ?? {}
-
-
-  async function get_session() {
-    const res  = await fetch('./api/session')
-    const json = await res.json()
-    console.log('session:', json)
-    setSession(json)
-  }
-
-  useEffect(() => {
-    if (session === undefined) get_session()
-    const interval = setInterval(() => get_session(), REFRESH_TIMER)
-    return () => clearInterval(interval)
-  }, [ session ])
+  const { session } = useSession()
+  const { status, deposit, invoice, timestamp } = session
 
   return (
     <>
@@ -38,35 +18,31 @@ export default function Home () {
         <p>Peer-to-peer personal drop-box on the ligthning network.</p>
       </div>
       <div className="main">
-        
-        { status === 'loading'  && <Loading />  }
-        { status === 'ready'    && <Register /> } 
-        { status === 'reserved' && <Reservation data={state as StoreData} /> }
-        { status === 'invoice'  && <Invoice data={invoice as string}   /> }
-        { status === 'receipt'  && <Receipt data={receipt as string}   /> }
+        { status === 'loading' && <Loading />  }
+        { status !== 'loading' && session.is_auth &&
+          <>
+            <div className="authroized">
+              {
+                status  === 'invoice' && 
+                invoice !== undefined && 
+                <Invoice invoice={invoice} /> 
+              }
+              {
+                status  === 'deposit' && 
+                deposit !== undefined && 
+                <Deposit deposit={deposit} /> 
+              }
+              { status === 'ready' && <Register /> }
+              { <Timer stamp={timestamp} /> }
+            </div>
+          </>
+        }
+        {
+          status === 'login' && 
+          !session.is_auth   &&
+          <Login />
+        }
       </div>
     </>
   )
-}
-
-function get_status (session ?: SessionData) : string {
-
-  if (session === undefined) {
-    return 'loading'
-  }
-
-  const { invoice, reserve, receipt, is_auth } = session
-
-  if (!is_auth) return 'login'
-  if (reserve === null) return 'available'
-  if (invoice === null) return 'reserved'
-    return 'invoice'
-  }
-
-  if (receipt !== null) {
-    return 'receipt'
-  }
-
-    return 'reserved'
-  }
 }

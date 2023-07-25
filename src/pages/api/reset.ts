@@ -15,7 +15,7 @@ async function handler (
   }
 
   try {
-    const ret = await store.reset()
+    const ret = await store._reset()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

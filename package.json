@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "lint" : "next lint",
+    "load" : "node --trace-deprecation --no-warnings --loader ts-node/esm",
     "start": "next start",
-    "lint": "next lint",
-    "scratch": "node --trace-deprecation --no-warnings --loader ts-node/esm test/scratch.ts"
+    "scratch": "yarn load test/scratch.ts",
+    "db_reset" : "yarn load test/api/reset.ts",
+    "box_post" : "yarn load test/api/box.ts"
   },
   "devDependencies": {
     "@cmdcode/buff-utils": "^1.10.2",

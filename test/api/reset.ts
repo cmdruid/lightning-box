@@ -1,8 +1,7 @@
-const LOCKBOX_KEY = 'TjY9XC9BVShZPF1SMkBPaWF3QTMsPTZ2QD5DOUxrVWc='
-const API_HOST    = 'http://localhost:3000' // 'https://lightning-box-cmdruid.vercel.app'
-const endpoint    = `${API_HOST}/api/reset`
-
-export async function reset_store () {
+async function reset_store () {
+  const LOCKBOX_KEY = 'TjY9XC9BVShZPF1SMkBPaWF3QTMsPTZ2QD5DOUxrVWc='
+  const API_HOST    = 'http://localhost:3000' // 'https://lightning-box-cmdruid.vercel.app'
+  const endpoint    = `${API_HOST}/api/reset`
 
   if (LOCKBOX_KEY === undefined) {
     throw new Error('Box key undefined!')
@@ -22,3 +21,5 @@ export async function reset_store () {
 
   return res.json()
 }
+
+reset_store()

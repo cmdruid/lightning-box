@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withTokenAuth } from '@/lib/middleware'
-import {schema }   from '@/schema'
+
+import { schema }  from '@/schema'
 import { is_diff } from '@/lib/utils'
 
 export default withTokenAuth(handler)
@@ -12,18 +13,26 @@ async function handler (
 ) {
   const { body, method, state, store } = req
 
-  if (method !== 'POST' || typeof body !== 'object') {
+  if (
+    method !== 'POST' ||
+    typeof body !== 'object'
+  ) {
     return res.status(400).end()
   }
 
-  try {
-    const parsed = await schema.box_data.spa(body)
+  const { deposit, invoice, session_code } = state
+  const { address, ...rest } = deposit ?? {}
+  const { receipt_id }       = invoice ?? {}
 
-    if (!parsed.success) {
+  try {
+    const old_state = { ...rest, code: session_code }
+    const box_state = await schema.box_data.spa(body)
+
+    if (!box_state.success) {
       return res.status(422).end()
     }
 
-    const { amount } = parsed.data
+    const { amount } = box_state.data
   
     const amount_ok = (
       amount !== null &&
@@ -31,8 +40,8 @@ async function handler (
       amount <= 100
     )
 
-    const addr_ok = state.recipient !== null
-    const is_paid = state.receipt   !== null
+    const addr_ok = address    !== undefined
+    const is_paid = receipt_id !== undefined
 
     const ret = {
       state,
@@ -41,8 +50,12 @@ async function handler (
       is_paid,
     }
 
-    if (is_diff(parsed.data, state.box_data)) {
-      ret.state = await store.update({ box_data: parsed.data })
+    if (is_diff(old_state, box_state.data)) {
+      const { code, amount, state } = box_state.data
+      ret.state = await store.update({
+        session_code : code ?? undefined,
+        deposit      : { ...deposit, state, amount }
+      })
     }
 
     return res.status(200).json(ret)

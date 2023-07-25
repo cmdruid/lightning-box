@@ -1,40 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useToast } from '@/hooks/useToast'
 
-export default function Register () {
-  const [ code, setCode ]   = useState('')
-  const [ toast, setToast ] = useState<string>()
+export default function Register (
+  { address } : { address ?: string }
+) {
+  const [ Toast, setToast ] = useToast()
+  const [ addr, setAddr ]   = useState(address)
 
   async function register () {
-    const res  = await fetch(`./api/reserve/register?code=${code}`)
+    const res  = await fetch(`./api/deposit/register?address=${addr}`)
     if (!res.ok) {
-      const { status, statusText } = res
-      setToast(`${status}: ${statusText}`)
+      setToast(`${res.status}: ${res.statusText}`)
     } else {
       const json = await res.json()
-      console.log('registration:', json)
-      window.location.reload()
+      console.log('register:', json)
     }
   }
-
-  useEffect(() => {
-    if (typeof toast === 'string') {
-      setTimeout(() => setToast(undefined), 5000)
-    }
-  })
 
   return (
     <div className="container">
       <div className="content">
-        <p>Enter the 6 digit code on the box to start:</p>
+        <p>Register a lightning address to use for payment:</p>
+        <Toast />
         <div className="form">
-          { typeof toast === 'string' && <div className="toast">{toast}</div> }
           <input
-            name="code"
-            value={code}
-            onChange={e => setCode(e.target.value)}
-            placeholder="123456 ..."
+            name="address"
+            value={addr}
+            onChange={e => setAddr(e.target.value)}
+            placeholder="your_name@lightning.address"
           ></input>
-          <button onClick={register}>Login</button>
+          <button onClick={register}>Register</button>
         </div>
       </div>
     </div>

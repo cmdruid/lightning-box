@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/lib/middleware'
 
+import { now } from '@/lib/utils'
+
 export default withSessionAuth(handler)
 
 async function handler (
@@ -9,25 +11,28 @@ async function handler (
   res: NextApiResponse
 ) {
   const { method, query, session, state, store } = req
-  const { reserve_id, status } = state
+  const { deposit, status } = state
   const { address } = query
 
   if (
-    method !== 'GET'          ||
-    status !== 'reserved'     ||
-    reserve_id === null       ||
-    session.id !== reserve_id ||
+    method !== 'GET'   ||
+    status !== 'ready' ||
     typeof address !== 'string'
   ) {
     return res.status(400).end()
   }
 
-  if (!validate_address(address)) {
-    return res.status(422).end()
-  }
+  // if (!validate_address(address)) {
+  //   return res.status(422).end()
+  // }
 
   try {
-    const ret = await store.update({ recipient : address })
+    const ret = await store.update({ 
+      status     : 'reserved',
+      deposit_id : session.id,
+      deposit    : { ...deposit, address },
+      timestamp  : now()
+    })
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

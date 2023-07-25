@@ -2,36 +2,29 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/lib/middleware'
 
-import { now } from '@/lib/utils'
-
 export default withSessionAuth(handler)
-
-const DEFAULT_TIMEOUT = 60 * 5
 
 async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const { method, query, session, state, store } = req
-  const { box_data, status } = state
-  const { code } = query
+  const { deposit_id, deposit, status } = state
 
   if (
-    method !== 'GET'         ||
-    status !== 'ready'       ||
-    typeof code !== 'string' ||
-    box_data === null        ||
-    code !== String(box_data.code)
+    method  !== 'GET'      ||
+    status  !== 'reserved' ||
+    deposit === undefined
   ) {
     return res.status(400).end()
   }
 
+  if (deposit_id !== session.id) {
+    return res.status(401).end()
+  }
+
   try {
-    const ret = await store.update({ 
-      status     : 'reserved',
-      reserve_id : session.id,
-      timeout    : now() + DEFAULT_TIMEOUT
-    })
+    const ret = await store._reset()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

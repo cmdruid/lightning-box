@@ -1,6 +1,6 @@
 import { Buff }            from '@cmdcode/buff-utils'
 import { withSession }     from '@/lib/session'
-import { StoreController } from '@/model/store'
+import { StoreController } from '@/db/store'
 import { StoreData }       from '@/schema'
 
 import {
@@ -8,6 +8,8 @@ import {
   NextApiRequest,
   NextApiResponse
 } from 'next'
+
+import * as validate from '@/lib/validate'
 
 declare module 'next' {
   interface NextApiRequest { 
@@ -84,36 +86,45 @@ export function withSessionAuth (
   ) => {
     const { session, state } = req
 
-    const { invoice, receipt_id, reserve_id, status } = state
+    const {
+      deposit,    deposit_id,   invoice, session_id,
+      invoice_id, session_code, status,  timestamp
+    } = state
 
-    if (session.id === undefined) {
+    if (typeof session.id !== 'string') {
       req.session.id = Buff.random(32).hex
     }
 
     if (
-      status !== 'ready'  &&
-      reserve_id !== null && 
-      session.id === reserve_id
+      typeof session_id === 'string' &&
+      session.id === session_id
     ) {
-      req.session.state = state
+      req.session.is_auth   = true
+      req.session.status    = status
     } else {
-      req.session.state = undefined
+      req.session.is_auth   = false
+      req.session.status    = 'login'
+    }
+
+    if (session_code === undefined) {
+      req.session.status  = 'loading'
     }
 
     if (
-      status === 'invoice' &&
-      invoice !== null
+      deposit_id !== undefined && 
+      session.id === deposit_id
+    ) {
+      req.session.deposit = deposit
+    }
+
+    if (
+      invoice_id !== undefined && 
+      session.id === invoice_id
     ) {
       req.session.invoice = invoice
     }
 
-    if (
-      status === 'paid'   &&
-      receipt_id !== null &&
-      session.id === receipt_id
-    ) {
-      req.session.receipt = receipt_id
-    }
+    req.session.timestamp = timestamp
 
     await req.session.save()
 
