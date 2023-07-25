@@ -1,4 +1,3 @@
-import { useEffect }   from 'react'
 import { useToast }    from '@/hooks/useToast'
 import { DepositData } from '@/schema'
 
@@ -6,15 +5,15 @@ export default function Register (
   { deposit } : { deposit : DepositData }
 ) {
   const [ Toast, setToast ] = useToast()
-  const { address, amount } = deposit
+  const { amount } = deposit
 
   async function confirm () {
-    const res = await fetch(`./api/charge/create`)
+    const res = await fetch(`./api/deposit/confirm`)
     if (!res.ok) {
       setToast(`${res.status}: ${res.statusText}`)
     } else {
       const json = await res.json()
-      console.log('session:', json)
+      console.log('confirm:', json)
       window.location.reload()
     }
   }
@@ -22,10 +21,10 @@ export default function Register (
   return (
     <div className="container">
       <div className="content">
-        <p>Deposit funds into the box, then click the button to create an invoice:</p>
+        <p>Deposit funds into the box, then click the button to confirm:</p>
         <Toast />
         <div className="form">
-          <button onClick={confirm}>Create Invoice</button>
+          <button onClick={confirm}>Confirm Amount</button>
         </div>
         <div className="status">
           <p>Current Balance:</p>

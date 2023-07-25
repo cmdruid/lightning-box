@@ -12,10 +12,13 @@ export default function Timer (
 
   const [ timer, setTimer ] = useState(expires - now())
 
+  async function logout () {
+    await fetch(`./api/session/logout`)
+    window.location.reload()
+  }
+
   useEffect(() => {
-    if (timer <= 0) {
-      window.location.reload()
-    }
+    // if (timer <= 0) logout()
     const interval = setInterval(() => {
       return setTimer((prev) => prev - 1)
     }, 1000)
@@ -27,9 +30,12 @@ export default function Timer (
 
   return (
    <div className="container">
-      <div className="timer">
-        { stamp && <p>Your login session expires in {minutes} minutes and {seconds} seconds.</p> }
-      </div>
+      { stamp && (
+        <div className="timer">
+          <p>Your login session expires in {minutes} minutes and {seconds} seconds.</p>
+          <button onClick={logout}>Logout</button>
+        </div>
+      )}
     </div>
   )
 }

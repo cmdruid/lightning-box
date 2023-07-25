@@ -1,75 +1,105 @@
 import { fetcher, Res } from './fetch.js'
 
-export interface ChargeResponse {
-  success: true,
-  data: {
-    lnaddress : string,
-    amount    : string,
-    invoice   : {
-      uri     : string
-      request : string
-    }
+const { ZBD_HOST, ZBD_KEY } = process.env
+
+if (typeof ZBD_HOST !== 'string') {
+  throw new Error('ZBD_HOST is undefined!')
+}
+
+if (typeof ZBD_KEY !== 'string') {
+  throw new Error('ZBD_KEY is undefined!')
+}
+
+export type ChargeResponse  = ZBDResponse<ChargeData>
+export type PaymentResponse = ZBDResponse<PaymentData>
+
+export interface ChargeConfig extends ZBDConfig {
+  expiresIn ?: number
+}
+
+export interface ZBDConfig {
+  internalId  ?: string
+  callbackUrl ?: string
+}
+
+export interface InvoiceData {
+  id     : string
+  unit   : string
+  amount : string
+  description : string
+  status      : string
+  confirmedAt : string | null
+  internalId  : string
+}
+
+export interface ChargeData extends InvoiceData{
+  createdAt   : string
+  expiresAt   : string
+  id          : string
+  callbackUrl : string
+  invoice   : {
+    uri     : string
+    request : string
   }
 }
 
-export interface PaymentResponse {
-  success : boolean,
-  data    : {
-    id            : string
-    fee           : string,
-    unit          : string,
-    amount        : string,
-    invoice       : string
-    preimage      : null,
-    walletId      : string
-    transactionId : string
-    callbackUrl   : string
-    internalId    : string
-    comment       : string
-    processedAt   : string
-    createdAt     : string
-    status        : string
-  },
-  message  : string
+export interface PaymentData extends InvoiceData {
+  fee         : string
+  preimage    : string
+  processedAt : string
+  confirmedAt : string
+  invoice     : string
 }
 
-const { API_HOST, API_KEY } = process.env
-
-if (typeof API_HOST !== 'string') {
-  throw new Error('API_HOST is undefined!')
+export interface ZBDResponse<T> {
+  success : true,
+  message : string
+  data    : T
 }
 
-if (typeof API_KEY !== 'string') {
-  throw new Error('API_KEY is undefined!')
-}
-
-const headers  = new Headers({ apikey : API_KEY })
-const callback = ''
+const headers  = new Headers({ apikey : ZBD_KEY })
 
 export function create_charge (
-  lnaddress   : string, 
   amount      : number, 
-  description : string
+  description : string,
+  config      : ChargeConfig = {}
 ) : Promise<Res<ChargeResponse>> {
-  const url = `${API_HOST}/v0/ln-address/fetch-charge`
+  const url = `${ZBD_HOST}/v0/charges`
   const opt = {
     headers,
     method : 'POST',
-    body   : JSON.stringify({ lnaddress, amount, description })
+    body   : JSON.stringify({ amount, description, ...config })
   }
   return fetcher(url, opt)
 }
 
+export function get_charge (
+  charge_id : string
+) : Promise<Res<ChargeResponse>> {
+  const url = `${ZBD_HOST}/v0/charges/${charge_id}`
+  const opt = { headers, method : 'GET' }
+  return fetcher(url, opt)
+}
+
 export function send_payment (
-  lnaddress   : string,
   amount      : number,
-  description : string
-) : Promise<Response> {
-  const url = `${API_HOST}/v0/ln-address/fetch-charge`
+  description : string,
+  invoice     : string,
+  config      : ZBDConfig = {}
+) : Promise<Res<PaymentResponse>> {
+  const url = `${ZBD_HOST}/v0/payments`
   const opt = {
     headers,
     method : 'POST',
-    body   : JSON.stringify({ lnaddress, amount, description, callback })
+    body   : JSON.stringify({ amount, description, invoice, ...config })
   }
-  return fetch(url, opt)
+  return fetcher(url, opt)
+}
+
+export function get_payment (
+  payment_id : string
+) : Promise<Res<PaymentResponse>> {
+  const url = `${ZBD_HOST}/v0/payments/${payment_id}`
+  const opt = { headers, method : 'GET' }
+  return fetcher(url, opt)
 }

@@ -9,8 +9,6 @@ import {
   NextApiResponse
 } from 'next'
 
-import * as validate from '@/lib/validate'
-
 declare module 'next' {
   interface NextApiRequest { 
     state : StoreData
@@ -21,7 +19,7 @@ declare module 'next' {
 const { LOCKBOX_KEY } = process.env
 
 if (typeof LOCKBOX_KEY !== 'string') {
-  throw new Error('Environment variable for BOX_TOKEN not defined!')
+  throw new Error('Environment variable for LOCKBOX_KEY not defined!')
 }
 
 export function withMiddleware  (
@@ -44,11 +42,8 @@ export function withMiddleware  (
       }
     }
 
-    const store = new StoreController()
-    const state = await store.get()
-
-    req.store = store
-    req.state = state
+    req.store = new StoreController()
+    req.state = await req.store.get()
 
     return handler(req, res)
   }
@@ -87,8 +82,8 @@ export function withSessionAuth (
     const { session, state } = req
 
     const {
-      deposit,    deposit_id,   invoice, session_id,
-      invoice_id, session_code, status,  timestamp
+      box, deposit, deposit_id, invoice, 
+      invoice_id, session_id, status, timestamp
     } = state
 
     if (typeof session.id !== 'string') {
@@ -106,8 +101,8 @@ export function withSessionAuth (
       req.session.status    = 'login'
     }
 
-    if (session_code === null) {
-      req.session.status  = 'loading'
+    if (box === null) {
+      req.session.status = 'loading'
     }
 
     if (

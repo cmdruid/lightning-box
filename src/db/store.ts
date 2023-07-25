@@ -17,21 +17,28 @@ export class StoreController extends Controller<StoreData> {
   }
 
   async _hook (data : StoreData) : Promise<StoreData> {
-    const { status, timestamp } = data
     let update : Partial<StoreData> = {}
+
     const parsed_status = get_status(data)
+
+    if (!validate.store_status(data, parsed_status)) {
+      update.status = parsed_status
+    }
+
     if (validate.reserve_expired(data)) {
       update.deposit_id = null
       update.deposit    = null
       update.status     = 'ready'
     }
-    if (validate.session_expired(timestamp)) {
+    if (validate.session_expired(data)) {
       update.session_id = null
       update.status     = 'login'
     }
-    if (status !== parsed_status) {
-      data = await this.update({ status : parsed_status })
+
+    if (Object.entries(update).length > 0) {
+      data = await this.update(update)
     }
+
     return data
   }
 
@@ -65,7 +72,7 @@ export class StoreController extends Controller<StoreData> {
 export const Store = new Controller<StoreData>(StoreModel, STORE_DEFAULTS)
 
 function get_status (data : StoreData) {
-  const { deposit_id, invoice_id, session_id, session_code } = data
+  const { box, deposit_id, invoice_id, session_id } = data
 
   let status : StoreStatus = 'loading'
 
@@ -75,7 +82,7 @@ function get_status (data : StoreData) {
     status = 'deposit'
   } else if (typeof session_id === 'string') {
     status = 'ready'
-  } else if (typeof session_code !== 'string') {
+  } else if (box === null) {
     status = 'loading'
   } else {
     status = 'login'

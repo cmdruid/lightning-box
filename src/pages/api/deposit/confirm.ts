@@ -1,12 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/lib/middleware'
-import { create_charge }   from '@/lib/zbd'
-import { env }          from '@/schema'
 
 import * as validate from '@/lib/validate'
-
-const { HOSTNAME } = config
 
 export default withSessionAuth(handler)
 
@@ -43,14 +39,11 @@ async function handler (
   }
 
   try {
-    // Get charge from zbd.
-    const config = {
-      internalId  : deposit_id,
-      callbackUrl : `${HOSTNAME}/api/charge/callback`
-    }
-    const charge = await create_charge(amount, 'lockbox', config)
-    // store invoice in store.
-    const ret = await store.update({})
+    const ret = await store.update({
+      status     : 'deposit',
+      deposit_id : session.id,
+      deposit    : { ...deposit, amount },
+    })
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

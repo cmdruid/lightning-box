@@ -9,17 +9,17 @@ async function handler (
   res : NextApiResponse
 ) {
   const { method, query, session, state, store } = req
-  const { session_code } = state
   const { code } = query
 
   if (
-    method !== 'GET' ||
+    method !== 'GET'   ||
+    state.box === null ||
     typeof code !== 'string'
   ) {
     return res.status(400).end()
   }
 
-  if (code !== String(session_code)) {
+  if (code !== state.box.code) {
     return res.status(401).end()
   }
 

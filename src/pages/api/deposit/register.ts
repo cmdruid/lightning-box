@@ -2,8 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/lib/middleware'
 
-import { now } from '@/lib/utils'
-import { schema } from '@/schema'
+import {
+  encode_address,
+  get_invoice
+}  from '@/lib/lnurl'
 
 export default withSessionAuth(handler)
 
@@ -20,19 +22,24 @@ async function handler (
     status !== 'ready' ||
     typeof address !== 'string'
   ) {
+    console.log('addr:', address)
     return res.status(400).end()
   }
 
-  if (!await validate_address(address)) {
-    return res.status(422).end()
+  let lnurl : string
+
+  try {
+    lnurl = await parse_address(address)
+  } catch (err) {
+    const { message } = err as Error
+    return res.status(400).send(message)
   }
 
   try {
     const ret = await store.update({ 
       status     : 'reserved',
       deposit_id : session.id,
-      deposit    : { ...deposit, address },
-      timestamp  : now()
+      deposit    : { ...deposit, address: lnurl }
     })
     return res.status(200).json(ret)
   } catch (err) {
@@ -42,9 +49,13 @@ async function handler (
   }
 }
 
-async function validate_address (
+async function parse_address (
   address : string
-) : Promise<boolean> {
-  const res = await schema.address.spa(address)
-  return res.success
+) : Promise<string> {
+  if (address.includes('@')) {
+    address = encode_address(address)
+  }
+  console.log('lnurl:', address)
+  await get_invoice(address, 100)
+  return address
 }

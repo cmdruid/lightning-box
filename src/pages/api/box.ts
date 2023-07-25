@@ -20,12 +20,9 @@ async function handler (
     return res.status(400).end()
   }
 
-  const { deposit, invoice, session_code } = state
-  const { address, ...rest } = deposit ?? {}
-  const { receipt_id }       = invoice ?? {}
+  const { box, deposit, invoice } = state
 
   try {
-    const old_state = { ...rest, code: session_code }
     const box_state = await schema.box_data.spa(body)
 
     if (!box_state.success) {
@@ -40,8 +37,8 @@ async function handler (
       amount <= 100
     )
 
-    const addr_ok = address    !== undefined
-    const is_paid = receipt_id !== undefined
+    const addr_ok = typeof deposit?.address === 'string'
+    const is_paid = typeof invoice?.payment_id === 'string'
 
     const ret = {
       state,
@@ -50,12 +47,8 @@ async function handler (
       is_paid,
     }
 
-    if (is_diff(old_state, box_state.data)) {
-      const { code, amount, state } = box_state.data
-      ret.state = await store.update({
-        session_code : code ?? undefined,
-        deposit      : { ...deposit, state, amount }
-      })
+    if (is_diff(box, box_state.data)) {
+      ret.state = await store.update({ box: box_state.data })
     }
 
     return res.status(200).json(ret)

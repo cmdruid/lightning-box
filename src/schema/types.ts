@@ -11,6 +11,7 @@ export interface BoxSession extends BoxData {
 
 export interface BoxData {
   amount : number | null
+  code   : string
   state  : BoxState
 }
 
@@ -19,8 +20,8 @@ export interface DepositData extends Partial<BoxData> {
 }
 
 export interface InvoiceData {
-  invoice_id : string
-  receipt_id : string
+  charge_id  : string
+  payment_id : string
 }
 
 export interface ClientSession extends SessionData {
@@ -40,11 +41,11 @@ export interface StoreData extends StoreSchema {
 }
 
 export interface StoreSchema {
+  box          : BoxData     | null
   deposit      : DepositData | null
   invoice      : InvoiceData | null
-  deposit_id   : string | null
-  invoice_id   : string | null
-  session_id   : string | null
-  session_code : string | null
+  deposit_id   : string      | null
+  invoice_id   : string      | null
+  session_id   : string      | null
   timestamp    : number
 }

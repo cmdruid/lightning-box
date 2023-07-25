@@ -1,19 +1,28 @@
+const box = {
+  bsonType : [ 'object', 'null' ],
+  required : [ 'amount', 'code', 'state' ],
+  properties : {
+    amount : { bsonType : [ 'number', 'null' ] },
+    code   : { bsonType : [ 'string', 'null' ] },
+    state  : { enum : [ 'await_addr', 'await_door', 'depositing', 'locked'] }
+  }
+}
+
 const deposit = {
   bsonType : [ 'object', 'null' ],
-  required : [ 'amount', 'state' ],
+  required : [ 'address', 'amount' ],
   properties : {
     address : { bsonType : [ 'string', 'null' ] },
     amount  : { bsonType : [ 'number', 'null' ] },
-    state   : { enum : [ 'await_addr', 'await_door', 'depositing', 'locked'] }
   }
 }
 
 const invoice = {
   bsonType : [ 'object', 'null' ],
-  required : [ 'invoice_id', 'receipt_id' ],
+  required : [ 'charge_id', 'payment_id' ],
   properties : {
-    invoice_id : { bsonType : 'string' },
-    receipt_id : { bsonType : 'string' }
+    charge_id  : { bsonType : [ 'string', 'null' ] },
+    payment_id : { bsonType : [ 'string', 'null' ] }
   }
 }
 
@@ -22,11 +31,12 @@ const schema = {
   bsonType: 'object',
 
   required: [
-    'deposit',      'invoice',    'deposit_id', 'invoice_id',
-    'session_code', 'session_id', 'status',     'timestamp'
+    'box', 'deposit', 'invoice', 'deposit_id', 'invoice_id',
+    'session_code', 'session_id', 'status', 'timestamp'
   ],
 
   properties : {
+    box,
     deposit,
     invoice,
     deposit_id   : { bsonType : [ 'string', 'null' ] },

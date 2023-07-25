@@ -20,14 +20,14 @@ export default function Register (
   return (
     <div className="container">
       <div className="content">
-        <p>Register a lightning address to use for payment:</p>
+        <p>Register a lightning address or LNURL to use for payment:</p>
         <Toast />
         <div className="form">
           <input
             name="address"
             value={addr}
             onChange={e => setAddr(e.target.value)}
-            placeholder="your_name@lightning.address"
+            placeholder="name@lnaddress.com | LNURL..."
           ></input>
           <button onClick={register}>Register</button>
         </div>
