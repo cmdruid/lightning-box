@@ -20,11 +20,13 @@ export default function Home () {
 
   const route = get_route(session, loading, error)
 
+  console.log('route:', route)
+
   return (
     <>
       <div className="title">
         <h1>Lightning Box</h1>
-        <p>Peer-to-peer personal drop-box on the ligthning network.</p>
+        <p>Peer-to-peer drop box on the ligthning network.</p>
       </div>
       <div className="main">
         { route === 'loading'  && <Loading />  }
@@ -33,7 +35,7 @@ export default function Home () {
         { route === 'login'    && <Login />    }
         { route === 'register' && <Register /> }
         { route === 'deposit'  && <Deposit box={box} deposit={deposit} /> }
-        { route === 'invoice'  && <Invoice invoice={invoice}/>  }
+        { route === 'invoice'  && <Invoice box={box} invoice={invoice} /> }
         { 
           connected &&
           expires_at !== undefined &&
@@ -54,7 +56,7 @@ function get_route (
   if (error !== undefined)   return 'error'
   if (status === 'init')     return 'activate'
   if (!connected)            return 'login'
-  if (invoice !== undefined) return 'invoice'
+  if (status === 'locked')   return 'invoice'
   if (deposit !== undefined) return 'deposit'
   if (status  === 'ready')   return 'register'
   return 'error'

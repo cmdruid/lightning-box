@@ -6,6 +6,13 @@ h1 {
   text-align: center;
 }
 
+pre {
+  color: black;
+  background-color: rgb(183, 235, 255);
+  text-align: left;
+  border-radius: 3px;
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -29,13 +36,6 @@ h1 {
 
 .status {
   margin-top: 2rem;
-}
-
-.status pre {
-  color: black;
-  background-color: rgb(183, 235, 255);
-  text-align: left;
-  border-radius: 3px;
 }
 
 .toast {

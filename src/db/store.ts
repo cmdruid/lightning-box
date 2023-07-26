@@ -27,6 +27,7 @@ export class StoreController extends Controller<StoreData> {
     if (reserve_expired(data)) {
       update.deposit_id = null
       update.deposit    = null
+      update.box        = null
     }
 
     if (session_expired(data)) {
@@ -78,9 +79,9 @@ export function invoice_expired (data : StoreData) {
 export function reserve_expired (data : StoreData) {
   const { box, deposit, status, timestamp } = data
   return (
-    status     === 'reserved' &&
-    box?.state !== 'locked'   &&
-    deposit    !== null       &&
+    status     !== 'locked' &&
+    box?.state !== 'locked' &&
+    deposit    !== null     &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }

@@ -20,7 +20,7 @@ export default function Login () {
   return (
     <div className="container">
       <div className="content">
-        <p>Enter the 6 digit pin-code on the box in order to start:</p>
+        <p>Enter the 6 digit code on the box in order to start:</p>
         <Toast />
         <div className="form">
           <input

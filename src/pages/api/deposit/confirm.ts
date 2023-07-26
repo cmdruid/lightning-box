@@ -16,7 +16,7 @@ async function handler (
   if (
     method  !== 'GET'      ||
     status  !== 'reserved' ||
-    deposit === undefined  ||
+    box     === null       ||
     deposit === null
   ) {
     return res.status(400).end()
@@ -26,24 +26,22 @@ async function handler (
     return res.status(401).end()
   }
 
-  if (box?.state !== 'locked') {
+  const { amount } = box
+
+  console.log('amount:', amount)
+
+  if (
+    box?.state !== 'locked' ||
+    !validate.amount_ok(amount)
+  ) {
     return res.status(403).end()
-  }
-
-  const { address, amount } = deposit
-
-  if (!(
-    validate.address_ok(address) &&
-    validate.amount_ok(amount)
-  )) {
-   return res.status(422).end()
   }
 
   try {
     const ret = await store.update({
       status     : 'locked',
       deposit_id : session.id,
-      deposit    : { address, amount },
+      deposit    : { ...deposit, amount },
     })
     return res.status(200).json(ret)
   } catch (err) {

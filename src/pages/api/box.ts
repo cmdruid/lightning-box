@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withTokenAuth } from '@/middleware'
 
-import { schema }  from '@/schema'
+import { StoreData, schema }  from '@/schema'
 import { is_diff } from '@/lib/utils'
 
 export default withTokenAuth(handler)
@@ -20,7 +20,7 @@ async function handler (
     return res.status(400).end()
   }
 
-  const { box, deposit, invoice } = state
+  const { box, deposit, invoice, status } = state
 
   try {
     const box_state = await schema.box_data.spa(body)
@@ -47,10 +47,18 @@ async function handler (
       is_paid,
     }
 
+    let update : Partial<StoreData> = {}
+
+    if (status === 'init') {
+      update.status = 'ready'
+    }
+
     if (is_diff(box, box_state.data)) {
-      ret.state = await store.update({
-        box: box_state.data
-      })
+      update.box = box_state.data
+    }
+
+    if (Object.entries(update).length > 0) {
+      store.update(update)
     }
 
     return res.status(200).json(ret)

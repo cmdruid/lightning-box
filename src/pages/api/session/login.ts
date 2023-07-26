@@ -15,10 +15,6 @@ async function handler (
   const { method, query, state, store } = req
   const { code } = query
 
-  console.log(state)
-
-  console.log(method, state.box, code)
-
   if (
     method !== 'GET' ||
     typeof code !== 'string'
@@ -35,11 +31,13 @@ async function handler (
   }
 
   try {
-    await store.update({ session_id : req.session.id })
+    await store.update({
+      session_id : req.session.id
+    })
 
-    req.session.connected = true
+    req.session.connected  = true
     req.session.expires_at = state.timestamp + SESSION_TIMEOUT
-    req.session.save()
+    await req.session.save()
 
     return res.status(200).json(req.session)
   } catch (err) {

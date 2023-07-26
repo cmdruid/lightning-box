@@ -12,14 +12,7 @@ export default function Deposit (
   const [ Toast, setToast ] = useToast()
 
   async function confirm () {
-    const req = {
-      method  : 'POST',
-      body    : JSON.stringify({
-        address : deposit?.address,
-        amount  : box?.amount, 
-      })
-    }
-    const res = await fetch(`./api/deposit/confirm`, req)
+    const res = await fetch(`./api/deposit/confirm`)
     if (!res.ok) {
       setToast(`${res.status}: ${res.statusText}`)
     } else {

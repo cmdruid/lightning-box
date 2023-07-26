@@ -32,7 +32,7 @@ export interface InvoiceData {
   internalId  : string
 }
 
-export interface ChargeData extends InvoiceData{
+export interface ChargeData extends InvoiceData {
   createdAt   : string
   expiresAt   : string
   id          : string

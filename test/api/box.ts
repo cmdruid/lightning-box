@@ -24,7 +24,7 @@ async function box_post (data : any) {
 }
 
 box_post({
-  amount : 0,
+  amount : 5,
   code   : '12345',
-  state  : 'await_addr'
+  state  : 'locked'
 })

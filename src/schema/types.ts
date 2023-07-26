@@ -23,8 +23,8 @@ export interface DepositData {
 }
 
 export interface InvoiceData {
-  charge_id  : string
-  payment_id : string
+  charge_id   : string
+  payment_id ?: string
 }
 
 export interface SessionData {

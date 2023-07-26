@@ -38,10 +38,11 @@ async function handler (
   try {
     const ret = await store.update({ 
       deposit_id : session.id,
-      deposit    : { address: lnurl, amount : 0 }
+      deposit    : { address: lnurl, amount : 0 },
+      status     : 'reserved'
     })
     req.session.status = 'reserved'
-    req.session.save()
+    await req.session.save()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

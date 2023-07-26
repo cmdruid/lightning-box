@@ -34,25 +34,25 @@ export function session_auth (
     if (
       session_id !== null &&
       expires_at > now()  &&
-      session.id !== session_id
+      session.id === session_id
     ) {
       req.session.connected  = true
       req.session.status     = state.status
       req.session.expires_at = expires_at
+      req.session.box        = box ?? undefined
     } else {
       req.session.connected  = false
       req.session.status     = 'disconnected'
       req.session.expires_at = undefined
+      req.session.box        = undefined
     }
 
     if (
       deposit_id !== null &&
       session.id === deposit_id
     ) {
-      req.session.box     = box ?? undefined
       req.session.deposit = deposit ?? undefined
     } else {
-      req.session.box     = undefined
       req.session.deposit = undefined
     }
 

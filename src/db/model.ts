@@ -19,10 +19,10 @@ const deposit = {
 
 const invoice = {
   bsonType : [ 'object', 'null' ],
-  required : [ 'charge_id', 'payment_id' ],
+  required : [ 'charge_id' ],
   properties : {
-    charge_id  : { bsonType : [ 'string', 'null' ] },
-    payment_id : { bsonType : [ 'string', 'null' ] }
+    charge_id  : { bsonType : 'string' },
+    payment_id : { bsonType : 'string' }
   }
 }
 
