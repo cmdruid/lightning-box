@@ -1,19 +1,29 @@
 import { useToast }    from '@/hooks/useToast'
-import { DepositData } from '@/schema'
+import { BoxData, DepositData } from '@/schema'
 
-export default function Register (
-  { deposit } : { deposit : DepositData }
+interface Props {
+  box     ?: BoxData
+  deposit ?: DepositData
+}
+
+export default function Deposit (
+  { box, deposit } : Props
 ) {
   const [ Toast, setToast ] = useToast()
-  const { amount } = deposit
 
   async function confirm () {
-    const res = await fetch(`./api/deposit/confirm`)
+    const req = {
+      method  : 'POST',
+      body    : JSON.stringify({
+        address : deposit?.address,
+        amount  : box?.amount, 
+      })
+    }
+    const res = await fetch(`./api/deposit/confirm`, req)
     if (!res.ok) {
       setToast(`${res.status}: ${res.statusText}`)
     } else {
-      const json = await res.json()
-      console.log('confirm:', json)
+      console.log('confirmed:', await res.json())
       window.location.reload()
     }
   }
@@ -27,10 +37,20 @@ export default function Register (
           <button onClick={confirm}>Confirm Amount</button>
         </div>
         <div className="status">
-          <p>Current Balance:</p>
-          <pre>{amount} CUCKBUCKS</pre>
-          <p>Deposit Status:</p>
-          <pre>{JSON.stringify(deposit, null, 2)}</pre>
+          { deposit !== undefined &&
+            <>
+              <p>Deposit Address:</p>
+              <pre>{deposit.address}</pre>
+            </>
+          }
+          { box !== undefined &&
+            <>
+              <p>Current Balance:</p>
+              <pre>{box.amount} CUCKBUCKS</pre>
+              <p>Box Status:</p>
+              <pre>{JSON.stringify(box, null, 2)}</pre>
+            </>
+          }
         </div>
       </div>
     </div>

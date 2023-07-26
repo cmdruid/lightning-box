@@ -1,44 +1,50 @@
-import { useCallback, useEffect, useState } from 'react'
+import useSWR from 'swr'
+import { z }  from 'zod'
 
-import { ClientSession } from '@/schema'
+export type ClientSession<T> = Session & Partial<T>
 
-import { now } from '@/lib/utils'
-
-const INIT_SESSION  = {
-  is_auth   : false,
-  status    : 'init',
-  timestamp : now()
+interface Session {
+  connected   : boolean
+  id         ?: string
+  updated_at ?: number
 }
 
-const REFRESH_TIMER = 1000 * 10
-
-export function useSession (host : string = '.') {
-  const [ session, setSession ] = useState<ClientSession>(INIT_SESSION)
-
-  const get_session = useCallback(async () => {
-    console.log('fetching session...')
-    const res  = await fetch(`${host}/api/session`)
-    const data = await res.json()
-    console.log('current session:', data)
-    setSession(data)
-  }, [ host ])
-
-  useEffect(() => {
-    if (session.status === 'init') get_session()
-    const interval = setInterval(() => get_session(), REFRESH_TIMER)
-    return () => clearInterval(interval)
-  }, [ get_session, session ])
-
-  return { session, setSession }
+export interface SessionAPI <T> {
+  session : ClientSession<T>
+  error   : string
+  loading : boolean
 }
 
-// function get_session_status (session : ClientSession) : string {
-//   const { deposit, invoice, is_auth, status } = session
+const INIT_SESSION = { connected : false }
 
-//   if ()
-//   if (!is_auth) return 'login'
-//   if (invoice !== undefined) return 'invoice'
-//   if (deposit !== undefined) return 'deposit'
+async function fetcher <T> (
+  input : RequestInfo | URL, 
+  init ?: RequestInit | undefined
+) : Promise<ClientSession<T>> {
+  const res = await fetch(input, init)
+  if (!res.ok) {
+    throw new Error(`${res.status}: ${res.statusText}`)
+  }
+  const json = await res.json()
+  return schema.passthrough().parse(json) as ClientSession<T>
+}
 
-//   return 'ready'
-// }
+const schema = z.object({
+  connected  : z.boolean(),
+  id         : z.string().optional(),
+  updated_at : z.number().optional()
+})
+
+export function useSession <T> (host : string = '.') : SessionAPI<T> {
+  const { data, error, isLoading } = useSWR<ClientSession<T>>(
+    `${host}/api/session`,
+    fetcher,
+    { refreshInterval: 1000 * 5 }
+  )
+
+  return {
+    error   : error?.message,
+    loading : isLoading,
+    session : { ...INIT_SESSION, ...data } as ClientSession<T>
+  }
+}

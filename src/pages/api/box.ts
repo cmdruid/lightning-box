@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withTokenAuth } from '@/lib/middleware'
+import { withTokenAuth } from '@/middleware'
 
 import { schema }  from '@/schema'
 import { is_diff } from '@/lib/utils'
@@ -48,7 +48,9 @@ async function handler (
     }
 
     if (is_diff(box, box_state.data)) {
-      ret.state = await store.update({ box: box_state.data })
+      ret.state = await store.update({
+        box: box_state.data
+      })
     }
 
     return res.status(200).json(ret)

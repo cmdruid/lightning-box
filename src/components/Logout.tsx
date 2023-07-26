@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import { now }    from '@/lib/utils'
-import { config } from '@/schema'
+import { now }         from '@/lib/utils'
+import { SessionData } from '@/schema'
 
-const { SESSION_TIMEOUT } = config
-
-export default function Timer (
-  { stamp } : { stamp : number }
+export default function Logout (
+  { expires } : { expires : number }
 ) {
-  const expires = stamp + SESSION_TIMEOUT
-
   const [ timer, setTimer ] = useState(expires - now())
 
   async function logout () {
@@ -30,12 +26,10 @@ export default function Timer (
 
   return (
    <div className="container">
-      { stamp && (
-        <div className="timer">
-          <p>Your login session expires in {minutes} minutes and {seconds} seconds.</p>
-          <button onClick={logout}>Logout</button>
-        </div>
-      )}
+      <div className="timer">
+        <p>Your login session will expire in {minutes} minutes and {seconds} seconds.</p>
+        <button onClick={logout}>Logout</button>
+      </div>
     </div>
   )
 }

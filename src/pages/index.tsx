@@ -1,15 +1,24 @@
 import Loading  from '@/components/Loading'
+import Error    from '@/components/Error'
+import Activate from '@/components/Activate'
 import Login    from '@/components/Login'
 import Logout   from '@/components/Logout'
 import Register from '@/components/Register'
 import Deposit  from '@/components/Deposit'
 import Invoice  from '@/components/Invoice'
 
-import { useSession } from '@/hooks/useSession'
+import {
+  ClientSession,
+  useSession
+} from '@/hooks/useSession'
+
+import { SessionData } from '@/schema'
 
 export default function Home () {
-  const { session } = useSession()
-  const { status, deposit, invoice, timestamp } = session
+  const { session, error, loading } = useSession<SessionData>()
+  const { box, connected, deposit, expires_at, invoice } = session
+
+  const route = get_route(session, loading, error)
 
   return (
     <>
@@ -18,31 +27,35 @@ export default function Home () {
         <p>Peer-to-peer personal drop-box on the ligthning network.</p>
       </div>
       <div className="main">
-        { status === 'loading' && <Loading />  }
-        { status !== 'loading' && session.is_auth &&
-          <>
-            <div className="authroized">
-              {
-                status  === 'invoice' && 
-                invoice !== undefined && 
-                <Invoice invoice={invoice} /> 
-              }
-              {
-                status  === 'deposit' && 
-                deposit !== undefined && 
-                <Deposit deposit={deposit} /> 
-              }
-              { status === 'ready' && <Register /> }
-              { <Logout stamp={timestamp} /> }
-            </div>
-          </>
-        }
-        {
-          status === 'login' && 
-          !session.is_auth   &&
-          <Login />
+        { route === 'loading'  && <Loading />  }
+        { route === 'error'    && <Error message={error} /> }
+        { route === 'activate' && <Activate /> }
+        { route === 'login'    && <Login />    }
+        { route === 'register' && <Register /> }
+        { route === 'deposit'  && <Deposit box={box} deposit={deposit} /> }
+        { route === 'invoice'  && <Invoice invoice={invoice}/>  }
+        { 
+          connected &&
+          expires_at !== undefined &&
+          <Logout expires={expires_at}/>
         }
       </div>
     </>
   )
+}
+
+function get_route (
+  session : ClientSession<SessionData>,
+  loading : boolean,
+  error  ?: string
+) : string {
+  const { connected, deposit, invoice, status } = session
+  if (loading)               return 'loading'
+  if (error !== undefined)   return 'error'
+  if (status === 'init')     return 'activate'
+  if (!connected)            return 'login'
+  if (invoice !== undefined) return 'invoice'
+  if (deposit !== undefined) return 'deposit'
+  if (status  === 'ready')   return 'register'
+  return 'error'
 }

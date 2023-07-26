@@ -116,17 +116,15 @@ export class Controller<T extends Document> {
   }
 
   async _update (
-    data     : Partial<T> = {},
-    filter   : Filter<Document> = {},
-    options ?: FindOneAndUpdateOptions
+    data    : Partial<T> = {},
+    filter  : Filter<Document> = {},
+    options : FindOneAndUpdateOptions = {}
   ) : Promise<T> {
     const controller = await getCollection(this.model)
-    const res = await controller.findOneAndUpdate(
-      filter,
-      { $set: data },
-      { ...options }
-    )
+    const res = await controller.findOneAndUpdate(filter, { $set: data }, options)
+    console.log('data:', data)
     console.log('update:', res)
+
     if (res.ok) {
       return res.value as unknown as T
     }

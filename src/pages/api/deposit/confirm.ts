@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/lib/middleware'
+import { withSessionAuth } from '@/middleware'
 
 import * as validate from '@/lib/validate'
 
@@ -11,12 +11,13 @@ async function handler (
   res: NextApiResponse
 ) {
   const { method, session, state, store } = req
-  const { deposit_id, deposit, status }   = state
+  const { box, deposit_id, deposit, status } = state
 
   if (
     method  !== 'GET'      ||
     status  !== 'reserved' ||
-    deposit === undefined
+    deposit === undefined  ||
+    deposit === null
   ) {
     return res.status(400).end()
   }
@@ -25,7 +26,7 @@ async function handler (
     return res.status(401).end()
   }
 
-  if (deposit?.state !== 'locked') {
+  if (box?.state !== 'locked') {
     return res.status(403).end()
   }
 
@@ -40,9 +41,9 @@ async function handler (
 
   try {
     const ret = await store.update({
-      status     : 'deposit',
+      status     : 'locked',
       deposit_id : session.id,
-      deposit    : { ...deposit, amount },
+      deposit    : { address, amount },
     })
     return res.status(200).json(ret)
   } catch (err) {

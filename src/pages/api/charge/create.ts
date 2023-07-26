@@ -1,12 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/lib/middleware'
+import { withSessionAuth } from '@/middleware'
 import { create_charge }   from '@/lib/zbd'
 import { env }          from '@/schema'
 
 import * as validate from '@/lib/validate'
 
-const { HOSTNAME } = config
+const { VERCEL_URL, VERCEL_ENV } = process.env
+
+const proto = (VERCEL_ENV === 'development') ? 'http' : 'https'
+
+const HOSTNAME = `${proto}://${VERCEL_URL}`
 
 export default withSessionAuth(handler)
 
@@ -15,12 +19,13 @@ async function handler (
   res: NextApiResponse
 ) {
   const { method, session, state, store } = req
-  const { deposit_id, deposit, status }   = state
+  const { box, deposit_id, deposit, status } = state
 
   if (
     method  !== 'GET'      ||
     status  !== 'reserved' ||
-    deposit === undefined
+    deposit === undefined  ||
+    deposit === null
   ) {
     return res.status(400).end()
   }
@@ -29,7 +34,7 @@ async function handler (
     return res.status(401).end()
   }
 
-  if (deposit?.state !== 'locked') {
+  if (box?.state !== 'locked') {
     return res.status(403).end()
   }
 

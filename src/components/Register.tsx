@@ -1,19 +1,17 @@
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 
-export default function Register (
-  { address } : { address ?: string }
-) {
-  const [ Toast, setToast ] = useToast()
-  const [ addr, setAddr ]   = useState(address)
+export default function Register () {
+  const [ Toast, setToast ]     = useToast()
+  const [ address, setAddress ] = useState('')
 
   async function register () {
-    const res  = await fetch(`./api/deposit/register?address=${addr}`)
+    const res  = await fetch(`./api/deposit/register?address=${address}`)
     if (!res.ok) {
       setToast(`${res.status}: ${res.statusText}`)
     } else {
-      const json = await res.json()
-      console.log('register:', json)
+      console.log('register:', await res.json())
+      window.location.reload()
     }
   }
 
@@ -25,8 +23,8 @@ export default function Register (
         <div className="form">
           <input
             name="address"
-            value={addr}
-            onChange={e => setAddr(e.target.value)}
+            value={address}
+            onChange={e => setAddress(e.target.value)}
             placeholder="name@lnaddress.com | LNURL..."
           ></input>
           <button onClick={register}>Register</button>

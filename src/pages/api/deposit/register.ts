@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/lib/middleware'
+import { withSessionAuth } from '@/middleware'
 
 import {
   encode_address,
@@ -26,21 +26,22 @@ async function handler (
     return res.status(400).end()
   }
 
-  let lnurl : string
+  let lnurl : string = address
 
-  try {
-    lnurl = await parse_address(address)
-  } catch (err) {
-    const { message } = err as Error
-    return res.status(400).send(message)
-  }
+  // try {
+  //   lnurl = await parse_address(address)
+  // } catch (err) {
+  //   const { message } = err as Error
+  //   return res.status(400).send(message)
+  // }
 
   try {
     const ret = await store.update({ 
-      status     : 'reserved',
       deposit_id : session.id,
-      deposit    : { ...deposit, address: lnurl }
+      deposit    : { address: lnurl, amount : 0 }
     })
+    req.session.status = 'reserved'
+    req.session.save()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

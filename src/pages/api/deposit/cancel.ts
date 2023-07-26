@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/lib/middleware'
+import { withSessionAuth } from '@/middleware'
 
 export default withSessionAuth(handler)
 
@@ -24,7 +24,7 @@ async function handler (
   }
 
   try {
-    const ret = await store._reset()
+    const ret = await store.reset()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

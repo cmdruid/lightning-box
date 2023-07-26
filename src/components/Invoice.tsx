@@ -1,7 +1,7 @@
 import { InvoiceData } from '@/schema'
 
 export default function Invoice (
-  { invoice } : { invoice : InvoiceData }
+  { invoice } : { invoice ?: InvoiceData }
 ) {
   async function get_invoice () {
     const res  = await fetch('./api/charge/create')

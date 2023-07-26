@@ -1,4 +1,4 @@
-import { fetcher, Res } from './fetch.js'
+import { fetcher, Res } from '@/lib/fetch'
 
 const { ZBD_HOST, ZBD_KEY } = process.env
 

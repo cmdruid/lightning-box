@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/lib/middleware'
+import { withSessionAuth } from '@/middleware'
 
 export default withSessionAuth(handler)
 
@@ -17,7 +17,6 @@ async function handler (
   try {
     return res.status(200).json(req.session)
   } catch (err) {
-    console.error(err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }

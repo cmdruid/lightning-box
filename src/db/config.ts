@@ -8,6 +8,6 @@ export const STORE_DEFAULTS = {
   deposit_id   : null,
   invoice_id   : null,
   session_id   : null,
-  status       : 'loading' as StoreStatus,
+  status       : 'init' as StoreStatus,
   timestamp    : now()
 }

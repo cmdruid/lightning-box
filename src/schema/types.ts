@@ -1,8 +1,10 @@
+import { ClientSession } from '@/hooks/useSession'
+
 export type BoxState    = 'await_addr' | 'await_door' | 'depositing' | 'locked'
-export type StoreStatus = 'loading' | 'login' | 'ready' | 'reserved' | 'deposit' | 'invoice'
+export type StoreStatus = 'init' | 'login' | 'ready' | 'reserved' | 'locked' | 'paid'
 
 declare module 'iron-session' {
-  interface IronSessionData extends ClientSession {}
+  interface IronSessionData extends ClientSession<SessionData> {}
 }
 
 export interface BoxSession extends BoxData {
@@ -15,8 +17,9 @@ export interface BoxData {
   state  : BoxState
 }
 
-export interface DepositData extends Partial<BoxData> {
-  address ?: string
+export interface DepositData {
+  address : string
+  amount  : number
 }
 
 export interface InvoiceData {
@@ -24,16 +27,13 @@ export interface InvoiceData {
   payment_id : string
 }
 
-export interface ClientSession extends SessionData {
-  id        ?: string
-  is_auth    : boolean
-  status     : string
-  timestamp  : number
-}
-
 export interface SessionData {
-  deposit ?: DepositData
-  invoice ?: InvoiceData
+  box        ?: BoxData
+  deposit    ?: DepositData
+  invoice    ?: InvoiceData
+  status     ?: string
+  expires_at ?: number
+  updated_at  : number
 }
 
 export interface StoreData extends StoreSchema {

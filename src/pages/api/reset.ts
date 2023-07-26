@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withTokenAuth } from '@/lib/middleware'
+import { withTokenAuth } from '@/middleware'
 
 export default withTokenAuth(handler)
 
@@ -15,7 +15,7 @@ async function handler (
   }
 
   try {
-    const ret = await store._reset()
+    const ret = await store.reset()
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)

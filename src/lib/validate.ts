@@ -31,28 +31,3 @@ export function address_ok (
     return false
   }
 }
-
-export function store_status (
-  data   : StoreData, 
-  status : StoreStatus
-) {
-  const { status : current_status } = data
-  return current_status === status
-}
-
-export function reserve_expired (data : StoreData) {
-  const { box, status, timestamp } = data
-  return (
-    status === 'reserved'   &&
-    box?.state !== 'locked' &&
-    timestamp + SESSION_TIMEOUT < now()
-  )
-}
-
-export function session_expired (data : StoreData) {
-  const { session_id, timestamp } = data
-  return (
-    session_id !== null &&
-    timestamp + SESSION_TIMEOUT < now()
-  )
-}
