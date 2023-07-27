@@ -14,7 +14,7 @@ async function handler (
   res: NextApiResponse
 ) {
   const { method, query, session, state, store } = req
-  const { deposit, status } = state
+  const { status }  = state
   const { address } = query
 
   if (
@@ -22,18 +22,17 @@ async function handler (
     status !== 'ready' ||
     typeof address !== 'string'
   ) {
-    console.log('addr:', address)
     return res.status(400).end()
   }
 
   let lnurl : string = address
 
-  // try {
-  //   lnurl = await parse_address(address)
-  // } catch (err) {
-  //   const { message } = err as Error
-  //   return res.status(400).send(message)
-  // }
+  try {
+    lnurl = await parse_address(address)
+  } catch (err) {
+    const { message } = err as Error
+    return res.status(422).json({ error: message })
+  }
 
   try {
     const ret = await store.update({ 

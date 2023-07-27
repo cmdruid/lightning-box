@@ -28,8 +28,6 @@ async function handler (
 
   const { amount } = box
 
-  console.log('amount:', amount)
-
   if (
     box?.state !== 'locked' ||
     !validate.amount_ok(amount)

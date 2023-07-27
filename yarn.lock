@@ -14,10 +14,10 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
-"@cmdcode/buff-utils@^1.10.2":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@cmdcode/buff-utils/-/buff-utils-1.10.2.tgz#7721f00a97b94131414776ecd3ecd0ae5f8d4864"
-  integrity sha512-ouBcWoTcoEZd6tCcAD/yuu/J9qbEypdolEGIbbrijWrDj1fmj2vbuiwrqg03ht9PC6JGoK151Dixt707jgcLlw==
+"@cmdcode/buff-utils@^1.11.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@cmdcode/buff-utils/-/buff-utils-1.11.1.tgz#1790217b7b0e3c836889dea0428dd4a6300eec44"
+  integrity sha512-BFCdpbULQ2f459HFzdHKTPUZyQPbTZoDNuc8peRoE8SOW/pthuv9dTdj4utINHulc+OGzxggjlxvKHsNyT3TwQ==
 
 "@cmdcode/use-store@^1.0.1":
   version "1.0.1"
