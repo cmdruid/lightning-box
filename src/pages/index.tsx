@@ -24,6 +24,10 @@ export default function Home () {
 
   console.log('route:', route)
 
+  if (error !== undefined) {
+    console.error(error)
+  }
+
   return (
     <>
       <div className="title">
