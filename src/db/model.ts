@@ -51,13 +51,13 @@ const schema = {
 export const StoreModel = {
   name: 'store',
 
-  indexes: [
-    {
-      name   : '_lookup_',
-      key    : { store_id: 1 },
-      unique : true
-    }
-  ],
+  // indexes: [
+  //   {
+  //     name   : '_lookup_',
+  //     key    : { store_id: 1 },
+  //     unique : true
+  //   }
+  // ],
 
   options: {
     validator        : { $jsonSchema: schema },

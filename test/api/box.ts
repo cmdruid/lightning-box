@@ -1,6 +1,7 @@
 async function box_post (data : any) {
   const LOCKBOX_KEY = 'TjY9XC9BVShZPF1SMkBPaWF3QTMsPTZ2QD5DOUxrVWc='
-  const API_HOST    = 'http://localhost:3000' // 'https://lightning-box-cmdruid.vercel.app'
+//  const API_HOST    = 'http://localhost:3000'
+  const API_HOST    = 'https://lightning-box-cmdruid.vercel.app'
   const endpoint    = `${API_HOST}/api/box`
 
   if (LOCKBOX_KEY === undefined) {
@@ -24,7 +25,7 @@ async function box_post (data : any) {
 }
 
 box_post({
-  amount : 0,
+  amount : 10,
   code   : '12345',
-  state  : 'await_addr'
+  state  : 'locked'
 })

@@ -2,6 +2,33 @@
 
 import { CollectionInfo, Db, MongoClient } from 'mongodb'
 
+export interface MongoSchema {
+  bsonType     : string | string[]
+  required     : string[]
+  description ?: string
+  enum        ?: string[]
+  items       ?: MongoSchema
+  properites  ?: Record<string, MongoSchema>
+  minLength   ?: number
+  maxLength   ?: number
+  minItems    ?: number
+  maxItems    ?: number 
+}
+
+export interface MongoModel {
+  name: string
+  indexes ?: Array<{
+    name   : string
+    key    : { [ k : string ]: number }
+    unique : boolean
+  }>
+  options: {
+    validator        : { $jsonSchema : MongoSchema }
+    validationLevel  : string
+    validationAction : string
+  }
+}
+
 const devMode = process.env.NODE_ENV !== 'production'
 
 const options  = {
@@ -41,12 +68,12 @@ export async function connect () {
   return { cacheDb, collections }
 }
 
-export async function getCollection (schema : any) {
+export async function getCollection (model : MongoModel) {
   /** Returns a collection based upon the provided schema,
    *  either fetching an existing collection or creating
    *  a new one. Ensures the stored schema is up-to-date.
    */
-  const { name, indexes, options } = schema,
+  const { name, indexes, options } = model,
         { cacheDb: db, collections } = await connect()
 
   // If the requested collection is not listed, create it.
@@ -54,7 +81,9 @@ export async function getCollection (schema : any) {
 
   if (cache === undefined) {
     const coll = await db.createCollection(name, options)
-    await coll.createIndexes(indexes)
+    if (indexes !== undefined) {
+      await coll.createIndexes(indexes)
+    }
     return coll
   }
 
@@ -75,7 +104,10 @@ export async function getCollection (schema : any) {
   const coll = db.collection(name)
 
   // Refresh collection indexes if model has changed.
-  if (isDiff(cache.indexes, indexes)) {
+  if (
+    indexes !== undefined &&
+    isDiff(cache.indexes, indexes)
+  ) {
     await coll.dropIndexes()
     await coll.createIndexes(indexes)
   }

@@ -1,6 +1,7 @@
 async function reset_store () {
   const LOCKBOX_KEY = 'TjY9XC9BVShZPF1SMkBPaWF3QTMsPTZ2QD5DOUxrVWc='
-  const API_HOST    = 'http://localhost:3000' // 'https://lightning-box-cmdruid.vercel.app'
+//  const API_HOST    = 'http://localhost:3000'
+  const API_HOST    = 'https://lightning-box-cmdruid.vercel.app'
   const endpoint    = `${API_HOST}/api/reset`
 
   if (LOCKBOX_KEY === undefined) {
