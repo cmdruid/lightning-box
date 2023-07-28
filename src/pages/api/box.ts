@@ -20,7 +20,7 @@ async function handler (
     return res.status(400).end()
   }
 
-  const { box, deposit, invoice, status } = state
+  const { box, deposit, withdraw, status } = state
 
   try {
     const box_state = await schema.box_data.spa(body)
@@ -37,8 +37,8 @@ async function handler (
       amount <= 100
     )
 
-    const addr_ok = typeof deposit?.address === 'string'
-    const is_paid = typeof invoice?.payment_id === 'string'
+    const addr_ok = typeof deposit?.address     === 'string'
+    const is_paid = typeof withdraw?.payment_id === 'string'
 
     const ret = {
       state,

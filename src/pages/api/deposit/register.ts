@@ -56,7 +56,6 @@ async function parse_address (
   if (address.includes('@')) {
     address = encode_address(address)
   }
-  console.log('lnurl:', address)
-  await get_invoice(address, 100)
+  await get_invoice(address, 1000)
   return address
 }

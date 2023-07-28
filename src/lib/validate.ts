@@ -1,9 +1,7 @@
-import { Buff } from '@cmdcode/buff-utils'
-import { now }  from './utils'
+import { Buff }   from '@cmdcode/buff-utils'
+import { config } from '@/schema'
 
-import { StoreData, StoreStatus, config } from '@/schema'
-
-const { MAX_AMOUNT, SESSION_TIMEOUT } = config
+const { MAX_AMOUNT } = config
 
 export function amount_ok (
   num ?: number | null

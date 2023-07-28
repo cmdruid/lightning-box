@@ -11,17 +11,17 @@ const deposit_data = z.object({
   amount  : z.number()
 })
 
-const invoice_data = z.object({
+const withdraw_data = z.object({
   charge_id  : z.string(),
-  payment_id : z.number()
+  payment_id : z.string(),
 })
 
 const store_data = z.object({
   box          : box_data.nullish(),
   deposit      : deposit_data.nullish(),
-  invoice      : invoice_data.nullish(),
+  withdraw     : withdraw_data.nullish(),
   deposit_id   : z.string().nullish(),
-  invoice_id   : z.string().nullish(),
+  withdraw_id  : z.string().nullish(),
   session_id   : z.string().nullish(),
   status       : z.string(),
   timestamp    : z.number()
@@ -43,7 +43,7 @@ const lnurl_invoice = z.object({
 export const schema = {
   box_data,
   deposit_data,
-  invoice_data,
+  withdraw_data,
   lnurl_invoice,
   lnurl_params,
   store_data

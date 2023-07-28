@@ -24,11 +24,8 @@ export default function Deposit (
   return (
     <div className="container">
       <div className="content">
-        <p>Deposit funds into the box, then click the button to confirm:</p>
+        <p>Deposit funds using the bill counter, then press the green button on the box to confirm:</p>
         <Toast />
-        <div className="form">
-          <button onClick={confirm}>Confirm Amount</button>
-        </div>
         <div className="status">
           { deposit !== undefined &&
             <>

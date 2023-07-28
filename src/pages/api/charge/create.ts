@@ -30,7 +30,7 @@ async function handler (
     return res.status(403).end()
   }
 
-  const { amount } = deposit
+  const amount = deposit.amount * 1000
 
   try {
     const config = {
@@ -39,26 +39,26 @@ async function handler (
     }
     const charge = await create_charge(amount, 'lockbox', config)
 
+    console.log('charge res:', JSON.stringify(charge, null, 2))
+
     if (!charge.ok) {
-      const err = { error : charge.err }
-      console.log(err)
-      return res.status(400).json(err)
+      console.log('Fetch Response error:', charge.error)
+      return res.status(400).json({ error : charge.error })
     }
 
-    if (!charge.data.success) {
-      const err = { error : charge.data.message }
-      console.log(err)
-      return res.status(400).json(err)
+    const { success, data, message } = charge.data
+
+    if (!success) {
+      console.log('ZBD Response error:', message)
+      return res.status(400).json({ error : message })
     }
 
-    const { data } = charge.data
-
-    const ret = await store.update({
-      invoice_id : session.id,
-      invoice    : { charge_id : data.id }
+    await store.update({
+      withdraw_id : session.id,
+      withdraw    : { charge_id : data.id }
     })
 
-    return res.status(200).json(ret)
+    return res.status(200).json(data)
   } catch (err) {
     console.error(err)
     const { message } = err as Error

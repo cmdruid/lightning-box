@@ -1,13 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/middleware'
-import { get_charge }      from '@/lib/zbd'
-
-const { VERCEL_URL, VERCEL_ENV } = process.env
-
-const proto = (VERCEL_ENV === 'development') ? 'http' : 'https'
-
-const HOSTNAME = `${proto}://${VERCEL_URL}`
+import { get_payment }     from '@/lib/zbd'
 
 export default withSessionAuth(handler)
 
@@ -19,8 +13,8 @@ async function handler (
   const { box, deposit, withdraw_id, withdraw, status } = state
 
   if (
-    method !== 'GET'     ||
-    status !== 'locked'  ||
+    method !== 'GET'        ||
+    box?.state !== 'locked' ||
     withdraw_id === null
   ) {
     return res.status(400).end()
@@ -31,29 +25,28 @@ async function handler (
   }
 
   if (
-    deposit  === null ||
-    withdraw === null ||
+    deposit    === null ||
+    withdraw   === null ||
     box?.state !== 'locked'
   ) {
     return res.status(403).end()
   }
 
-  const config = {
-    internalId  : withdraw_id,
-    callbackUrl : `${HOSTNAME}/api/charge/callback`
+  const { payment_id } = withdraw
+
+  if (payment_id === undefined) {
+    return res.status(403).end()
   }
 
-  const { charge_id } = withdraw
-
   try {
-    const charge = await get_charge(charge_id)
+    const payment = await get_payment(payment_id)
 
-    if (!charge.ok) {
-      console.log('ZBD Fetch error:', charge.error )
-      return res.status(400).json({ error : charge.error })
+    if (!payment.ok) {
+      console.log('ZBD Fetch error:', payment.error )
+      return res.status(400).json({ error : payment.error })
     }
 
-    const { success, data, message } = charge.data
+    const { success, data, message } = payment.data
 
     if (!success) {
       console.log('ZBD Response error:', message)
@@ -68,9 +61,9 @@ async function handler (
 
     if (
       data.status  === 'completed' &&
-      state.status === 'locked'
+      state.status === 'received'
     ) {
-      await store.update({ status : 'received' })
+      await store.update({ status : 'paid' })
     }
 
     return res.status(200).json(data)

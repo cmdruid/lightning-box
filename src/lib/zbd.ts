@@ -57,19 +57,28 @@ export interface ZBDResponse<T> {
   data    : T
 }
 
-const headers  = new Headers({ apikey : ZBD_KEY })
+function get_headers (type ?: string) {
+  const headers = new Headers({ apikey : ZBD_KEY })
+  if (type !== undefined) {
+    if (type === 'json') {
+      headers.set('content-type', 'application/json')
+    }
+  }
+  return headers
+}
 
 export function create_charge (
-  amount      : number, 
-  description : string,
-  config      : ChargeConfig = {}
+  amount : number,
+  desc   : string,
+  config : ChargeConfig = {}
 ) : Promise<Res<ChargeResponse>> {
   const url = `${ZBD_HOST}/v0/charges`
   const opt = {
-    headers,
-    method : 'POST',
-    body   : JSON.stringify({ amount, description, ...config })
+    headers : get_headers('json'),
+    method  : 'POST',
+    body    : JSON.stringify({ amount, description: desc, ...config })
   }
+  console.log('POST:', url, opt)
   return fetcher(url, opt)
 }
 
@@ -77,22 +86,21 @@ export function get_charge (
   charge_id : string
 ) : Promise<Res<ChargeResponse>> {
   const url = `${ZBD_HOST}/v0/charges/${charge_id}`
-  const opt = { headers, method : 'GET' }
+  const opt = { headers: get_headers(), method : 'GET' }
   return fetcher(url, opt)
 }
 
 export function send_payment (
-  amount      : number,
-  description : string,
-  invoice     : string,
-  config      : ZBDConfig = {}
+  invoice : string,
+  config  : ZBDConfig = {}
 ) : Promise<Res<PaymentResponse>> {
   const url = `${ZBD_HOST}/v0/payments`
   const opt = {
-    headers,
-    method : 'POST',
-    body   : JSON.stringify({ amount, description, invoice, ...config })
+    headers : get_headers('json'),
+    method  : 'POST',
+    body    : JSON.stringify({ invoice, ...config })
   }
+  console.log('send_payment:', opt)
   return fetcher(url, opt)
 }
 
@@ -100,6 +108,6 @@ export function get_payment (
   payment_id : string
 ) : Promise<Res<PaymentResponse>> {
   const url = `${ZBD_HOST}/v0/payments/${payment_id}`
-  const opt = { headers, method : 'GET' }
+  const opt = { headers:  get_headers(), method : 'GET' }
   return fetcher(url, opt)
 }

@@ -17,7 +17,7 @@ const deposit = {
   }
 }
 
-const invoice = {
+const withdraw = {
   bsonType : [ 'object', 'null' ],
   required : [ 'charge_id' ],
   properties : {
@@ -31,19 +31,19 @@ const schema = {
   bsonType: 'object',
 
   required: [
-    'box', 'deposit', 'invoice', 'deposit_id', 'invoice_id',
+    'box', 'deposit', 'withdraw', 'deposit_id', 'withdraw_id',
     'session_id', 'status', 'timestamp'
   ],
 
   properties : {
     box,
     deposit,
-    invoice,
-    deposit_id   : { bsonType : [ 'string', 'null' ] },
-    invoice_id   : { bsonType : [ 'string', 'null' ] },
-    session_id   : { bsonType : [ 'string', 'null' ] },
-    status       : { bsonType : 'string' },
-    timestamp    : { bsonType : 'number' }
+    withdraw,
+    deposit_id  : { bsonType : [ 'string', 'null' ] },
+    withdraw_id : { bsonType : [ 'string', 'null' ] },
+    session_id  : { bsonType : [ 'string', 'null' ] },
+    status      : { bsonType : 'string' },
+    timestamp   : { bsonType : 'number' }
   }
 }
 

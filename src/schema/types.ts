@@ -1,7 +1,7 @@
 import { ClientSession } from '@/hooks/useSession'
 
 export type BoxState    = 'await_addr' | 'await_door' | 'depositing' | 'locked'
-export type StoreStatus = 'init' | 'login' | 'ready' | 'reserved' | 'locked' | 'paid'
+export type StoreStatus = 'init' | 'ready' | 'reserved' | 'locked' | 'received' | 'paid'
 
 declare module 'iron-session' {
   interface IronSessionData extends ClientSession<SessionData> {}
@@ -22,7 +22,7 @@ export interface DepositData {
   amount  : number
 }
 
-export interface InvoiceData {
+export interface WithdrawData {
   charge_id   : string
   payment_id ?: string
 }
@@ -30,7 +30,7 @@ export interface InvoiceData {
 export interface SessionData {
   box        ?: BoxData
   deposit    ?: DepositData
-  invoice    ?: InvoiceData
+  withdraw   ?: WithdrawData
   status     ?: string
   expires_at ?: number
   updated_at  : number
@@ -41,11 +41,11 @@ export interface StoreData extends StoreSchema {
 }
 
 export interface StoreSchema {
-  box          : BoxData     | null
-  deposit      : DepositData | null
-  invoice      : InvoiceData | null
-  deposit_id   : string      | null
-  invoice_id   : string      | null
-  session_id   : string      | null
-  timestamp    : number
+  box         : BoxData      | null
+  deposit     : DepositData  | null
+  withdraw    : WithdrawData | null
+  deposit_id  : string       | null
+  withdraw_id : string       | null
+  session_id  : string       | null
+  timestamp   : number
 }

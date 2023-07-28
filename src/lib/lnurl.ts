@@ -1,10 +1,5 @@
-import { Buff } from "@cmdcode/buff-utils"
-
-import { fetcher, Res } from '@/lib/fetch'
-import { parse_schema } from '@/lib/utils'
-import { schema }       from '@/schema'
-
-import * as validate    from '@/lib/validate'
+import { Buff }   from '@cmdcode/buff-utils'
+import { schema } from '@/schema'
 
 export type LNURLResponse<T> = T & { status : undefined } | LNURLError
 
@@ -36,37 +31,53 @@ export function encode_address (
     throw new Error('Address invalid!')
   }
   const [ user, domain ] = address.split('@')
-  return Buff
-    .str(`https://${domain}/.well-known/lnurlp/${user}`)
-    .toBase64()
+  const url = `https://${domain}/.well-known/lnurlp/${user}`
+  return Buff.str(url).toBech32('lnurl')
 }
 
 export async function get_invoice (
   lnurl  : string,
   amount : number
 ) {
-  const amt = amount * 1000
   const url = Buff.bech32(lnurl).str
-  console.log('decoded:', url)
-  const params_res = await fetcher<LNURLParamRes>(url)
+  const params_res = await fetch(url)
   if (!params_res.ok) {
-    throw new Error(`LNURL params request failed: ${params_res.err}`)
+    const { status, statusText } = params_res
+    throw new Error(`LNURL params request failed: ${status} ${statusText}`)
   }
-  if (params_res.data.status === 'ERROR') {
-    throw new Error(`LNURL params request failed: ${params_res.data.reason}`)
+  const params_data = await params_res.json()
+
+  if (
+    params_data.status !== undefined &&
+    params_data.status === 'ERROR'
+  ) {
+    throw new Error(`LNURL params request failed: ${params_data?.reason}`)
   }
-  const params = parse_schema (params_res.data, schema.lnurl_params)
+
+  const params = schema.lnurl_params.passthrough().parse(params_data)
   const { minSendable, maxSendable, callback } = params
-  if (amt < minSendable || amt > maxSendable) {
+
+  if (amount < minSendable || amount > maxSendable) {
     throw new Error(`LNURL params does not permit amount: ${amount}`)
   }
-  const inv_res = await fetcher<LNURLInvRes>(`${callback}?amount=${amt}`)
+
+  const inv_res = await fetch(`${callback}?amount=${amount}`)
+
   if (!inv_res.ok) {
-    throw new Error(`LNURL params request failed: ${inv_res.err}`)
+    const { status, statusText } = params_res
+    throw new Error(`LNURL params request failed: ${status} ${statusText}`)
   }
-  if (inv_res.data.status === 'ERROR') {
-    throw new Error(`LNURL params request failed: ${inv_res.data.reason}`)
+  
+  const inv_data = await inv_res.json()
+
+  if (
+    inv_data.status !== undefined &&
+    inv_data.status === 'ERROR'
+  ) {
+    throw new Error(`LNURL params request failed: ${inv_data?.reason}`)
   }
-  const { pr } = parse_schema (inv_res.data, schema.lnurl_invoice)
+
+  const { pr } = schema.lnurl_invoice.parse(inv_data)
+
   return pr
 }

@@ -37,7 +37,7 @@ const schema = z.object({
 
 export function useSession <T> (host : string = '.') : SessionAPI<T> {
   const { data, error, isLoading } = useSWR<ClientSession<T>>(
-    `${host}/api/session`,
+    `${host}/api/session/status`,
     fetcher,
     { refreshInterval: 1000 * 5 }
   )

@@ -8,6 +8,8 @@ import {
   StoreData
 } from '@/schema'
 
+import * as validate from '@/lib/validate'
+
 const { SESSION_TIMEOUT } = config
 
 export class StoreController extends Controller<StoreData> {
@@ -19,9 +21,29 @@ export class StoreController extends Controller<StoreData> {
   async _hook (data : StoreData) : Promise<StoreData> {
     let update : Partial<StoreData> = {}
 
-    if (invoice_expired(data)) {
-      update.invoice_id = null
-      update.invoice    = null
+    const parsed_status = parse_status(data)
+
+    if (data.status !== parsed_status) {
+      update.status = parsed_status
+    }
+
+    if (box_unlocked(data)) {
+      data = await this.reset({ box : data.box })
+    }
+
+    if (box_locked(data)) {
+      const { session_id } = data
+      const { ok, address, amount } = parse_deposit(data)
+      if (ok) {
+        update.deposit_id = session_id
+        update.deposit    = { address, amount }
+        update.status     = 'locked'
+      }
+    }
+
+    if (withdraw_expired(data)) {
+      update.withdraw_id = null
+      update.withdraw    = null
     }
 
     if (reserve_expired(data)) {
@@ -44,18 +66,19 @@ export class StoreController extends Controller<StoreData> {
   async get () : Promise<StoreData> {
     let data = await this._get({ timestamp: { $lte: now() } })
 
-    data = (data === null)
-      ? await this._create()
-      : await this._hook(data)
+    if (data === null) {
+      throw new Error('Controller returned null value!')
+    }
+    
+    await this._hook(data)
 
     console.log('db state:', data)
 
     return data
   }
 
-  async reset () : Promise<StoreData> {
-    const template = { ...STORE_DEFAULTS, timestamp: now() }
-    console.log('new template:', template)
+  async reset (template : Partial<StoreData>) : Promise<StoreData> {
+    template = { ...STORE_DEFAULTS, ...template, timestamp: now() }
     return this._update(template, {}, { sort: { timestamp: -1 } })
   }
 
@@ -67,21 +90,37 @@ export class StoreController extends Controller<StoreData> {
 
 export const Store = new Controller<StoreData>(StoreModel, STORE_DEFAULTS)
 
-export function invoice_expired (data : StoreData) {
-  const { invoice, status, timestamp } = data
+export function box_unlocked (data : StoreData) {
+  const { box, status } = data
   return (
-    status  === 'locked' &&
-    invoice !== null     &&
+    status     === 'paid' &&
+    box?.state === 'await_addr'
+  )
+}
+
+export function box_locked (data : StoreData) {
+  const { box, status } = data
+  return (
+    status     === 'reserved' &&
+    box?.state === 'locked'
+  )
+}
+
+export function withdraw_expired (data : StoreData) {
+  const { withdraw_id, status, timestamp } = data
+  return (
+    status      === 'locked' &&
+    withdraw_id !== null     &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }
 
 export function reserve_expired (data : StoreData) {
-  const { box, deposit, status, timestamp } = data
+  const { box, deposit_id, status, timestamp } = data
   return (
-    status     !== 'locked' &&
-    box?.state !== 'locked' &&
-    deposit    !== null     &&
+    status     === 'reserved' &&
+    deposit_id !== null       &&
+    box?.state !== 'locked'   &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }
@@ -92,4 +131,43 @@ export function session_expired (data : StoreData) {
     session_id !== null &&
     timestamp + SESSION_TIMEOUT < now()
   )
+}
+
+function parse_status (data : StoreData) {
+  const { box, status } = data
+
+  if (box === null) return 'init'
+
+  if (
+    status    === 'paid' && 
+    box.state === 'await_addr'
+  ) {
+    return 'ready'
+  }
+
+  return status
+}
+
+function parse_deposit (
+  data : StoreData
+) : { 
+  ok       : true
+  address  : string
+  amount   : number
+} | {
+  ok       : false
+  address ?: string
+  amount  ?: number | null
+} {
+  const { box, deposit } = data
+  const { address } = deposit ?? {}
+  const { amount }  = box     ?? {}
+
+  if (
+    validate.address_ok(address) &&
+    validate.amount_ok(amount)
+  ) {
+    return { ok : true, address, amount }
+  }
+  return { ok : false, address, amount }
 }

@@ -1,14 +1,15 @@
 export type Res<T = any> = PassResponse<T> | FailResponse
 
 interface PassResponse<T> {
-  ok   : true
-  data : T
+  ok     : true
+  data   : T
+  error ?: string
 }
 
 interface FailResponse {
   ok    : false
   data ?: any
-  err   : string
+  error : string
 }
 
 export async function fetcher<T> (
@@ -22,21 +23,21 @@ export async function fetcher<T> (
     // If initial response fails:
     if (!ok) {
       // Return the response status as error.
-      const err = `[${status}]: ${statusText}`
+      const error = `[${status}]: ${statusText}`
       // Try to return a json payload.
       try {
         const data = await res.json()
-        return { ok, data, err }
+        return { ok, data, error }
       } catch {
-        return { ok, err }
+        return { ok, error }
       }
     }
     // Unpack the json response.
-    const { data, err } = await res.json()
+    const data = await res.json()
     // If an err object is present:
-    if (err !== undefined) {
+    if (data.error !== undefined) {
       // Return the err as response.
-      return { ok: false, data, err }
+      return { ok: false, data, error: data.error }
     }
     // Return the data as generic type.
     return { ok, data: data as T }
@@ -46,6 +47,6 @@ export async function fetcher<T> (
     // Log the full error to console.
     console.log(err)
     // Return the error message as response.
-    return { ok: false, err: `[000]: ${message}` }
+    return { ok: false, error: `[000]: ${message}` }
   }
 }

@@ -21,7 +21,7 @@ export function session_auth (
 
     const {
       box, deposit, deposit_id, 
-      invoice, invoice_id, session_id, 
+      withdraw, withdraw_id, session_id, 
       timestamp
     } = state
 
@@ -57,12 +57,12 @@ export function session_auth (
     }
 
     if (
-      invoice_id !== null &&
-      session.id === invoice_id
+      withdraw_id !== null &&
+      session.id === withdraw_id
     ) {
-      req.session.invoice = invoice ?? undefined
+      req.session.withdraw = withdraw ?? undefined
     } else {
-      req.session.invoice = undefined
+      req.session.withdraw = undefined
     }
 
     if (state.status === 'init') {
