@@ -77,7 +77,7 @@ export class StoreController extends Controller<StoreData> {
     return data
   }
 
-  async reset (template : Partial<StoreData>) : Promise<StoreData> {
+  async reset (template ?: Partial<StoreData>) : Promise<StoreData> {
     template = { ...STORE_DEFAULTS, ...template, timestamp: now() }
     return this._update(template, {}, { sort: { timestamp: -1 } })
   }

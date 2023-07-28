@@ -58,7 +58,7 @@ export interface ZBDResponse<T> {
 }
 
 function get_headers (type ?: string) {
-  const headers = new Headers({ apikey : ZBD_KEY })
+  const headers = new Headers({ apikey : ZBD_KEY ?? '' })
   if (type !== undefined) {
     if (type === 'json') {
       headers.set('content-type', 'application/json')
