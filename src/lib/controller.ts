@@ -5,39 +5,11 @@ import {
   FindOneAndUpdateOptions,
   FindOptions,
   InsertOneOptions,
-  ModifyResult,
   UpdateFilter,
-  UpdateOptions
+  WithId
 } from 'mongodb'
 
-import { getCollection } from '@/lib/db'
-
-export interface MongoSchema {
-  bsonType     : string | string[]
-  required     : string[]
-  description ?: string
-  enum        ?: string[]
-  items       ?: MongoSchema
-  properites  ?: Record<string, MongoSchema>
-  minLength   ?: number
-  maxLength   ?: number
-  minItems    ?: number
-  maxItems    ?: number 
-}
-
-export interface MongoModel {
-  name: string
-  indexes: Array<{
-    name   : string
-    key    : { [ k : string ]: number }
-    unique : boolean
-  }>
-  options: {
-    validator        : { $jsonSchema : MongoSchema }
-    validationLevel  : string
-    validationAction : string
-  }
-}
+import { getCollection, MongoModel } from '@/lib/db'
 
 export class Controller<T extends Document> {
   readonly _defaults : T
@@ -93,40 +65,28 @@ export class Controller<T extends Document> {
   }
 
   async _set (
-    template   : T,
     filter     : Filter<Document>,
-    update    ?: UpdateFilter<T>,
-    options   ?: UpdateOptions
-  ) : Promise<T> {
-    const data = this.get_template(template)
-    const controller = await getCollection(this.model)
-    const res = await controller.updateOne (
-      filter,
-      { ...update, $set: data },
-      { ...options, upsert: true }
+    template   : T,
+    update    ?: UpdateFilter<Document>,
+    options   ?: FindOneAndUpdateOptions
+  ) : Promise<WithId<T>> {
+    return this._update(
+      filter, template, update, { ...options, upsert: true }
     )
-    if (res.acknowledged) {
-      if (res.modifiedCount === 1) {
-        return data
-      } else if (res.upsertedCount === 1) {
-        return { ...data, _id : res.upsertedId }
-      }
-    }
-    throw new Error('Set operation failed!')
   }
 
   async _update (
-    data    : Partial<T> = {},
-    filter  : Filter<Document> = {},
+    filter  : Filter<Document>        = {},
+    data    : Partial<T>              = {},
+    update  : UpdateFilter<Document>  = {},
     options : FindOneAndUpdateOptions = {}
-  ) : Promise<T> {
+  ) : Promise<WithId<T>> {
     const controller = await getCollection(this.model)
-    const res = await controller.findOneAndUpdate(filter, { $set: data }, options)
-    console.log('data:', data)
-    console.log('update:', res)
-
-    if (res.ok) {
-      return res.value as unknown as T
+    const res = await controller.findOneAndUpdate(
+      filter, { ...update, $set: data }, options
+    )
+    if (res.ok && res.value !== null) {
+      return res.value as unknown as WithId<T>
     }
     throw new Error('Update document failed!')
   }

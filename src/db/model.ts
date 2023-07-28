@@ -32,13 +32,14 @@ const schema = {
 
   required: [
     'box', 'deposit', 'withdraw', 'deposit_id', 'withdraw_id',
-    'session_id', 'status', 'timestamp'
+    'session_id', 'status', 'store_id', 'timestamp'
   ],
 
   properties : {
     box,
     deposit,
     withdraw,
+    store_id    : { bsonType : 'string' },
     deposit_id  : { bsonType : [ 'string', 'null' ] },
     withdraw_id : { bsonType : [ 'string', 'null' ] },
     session_id  : { bsonType : [ 'string', 'null' ] },
@@ -53,7 +54,7 @@ export const StoreModel = {
   indexes: [
     {
       name   : '_lookup_',
-      key    : { timestamp: -1 },
+      key    : { store_id: 1 },
       unique : true
     }
   ],

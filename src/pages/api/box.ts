@@ -34,7 +34,7 @@ async function handler (
     const amount_ok = (
       amount !== null &&
       amount > 0      &&
-      amount <= 100
+      amount <= 150
     )
 
     const addr_ok = typeof deposit?.address     === 'string'

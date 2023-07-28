@@ -11,6 +11,7 @@ import {
 import * as validate from '@/lib/validate'
 
 const { SESSION_TIMEOUT } = config
+const { store_id } = STORE_DEFAULTS
 
 export class StoreController extends Controller<StoreData> {
 
@@ -64,10 +65,10 @@ export class StoreController extends Controller<StoreData> {
   }
 
   async get () : Promise<StoreData> {
-    let data = await this._get({ timestamp: { $lte: now() } })
+    let data = await this._get({ store_id })
 
     if (data === null) {
-      throw new Error('Controller returned null value!')
+      return STORE_DEFAULTS
     }
     
     await this._hook(data)
@@ -79,12 +80,12 @@ export class StoreController extends Controller<StoreData> {
 
   async reset (template ?: Partial<StoreData>) : Promise<StoreData> {
     template = { ...STORE_DEFAULTS, ...template, timestamp: now() }
-    return this._update(template, {}, { sort: { timestamp: -1 } })
+    return this._update({ store_id }, template, {}, { upsert : true })
   }
 
   async update (template : Partial<StoreData>) : Promise<StoreData> {
     template = { ...template, timestamp: now() }
-    return this._update(template, {}, { sort: { timestamp: -1 } })
+    return this._update({ store_id }, template)
   }
 }
 

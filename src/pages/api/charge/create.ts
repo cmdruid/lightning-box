@@ -2,6 +2,9 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withSessionAuth } from '@/middleware'
 import { create_charge }   from '@/lib/zbd'
+import { config }          from '@/schema'
+
+const { ESCROW_FEE, ESCROW_RATE } = config
 
 const { VERCEL_URL, VERCEL_ENV } = process.env
 
@@ -30,14 +33,17 @@ async function handler (
     return res.status(403).end()
   }
 
-  const amount = deposit.amount * 1000
+  const amount = deposit.amount,
+        rate   = Math.ceil(amount * ESCROW_RATE),
+        total  = (amount + rate + ESCROW_FEE) * 1000
 
   try {
     const config = {
       internalId  : session.id,
       callbackUrl : `${HOSTNAME}/api/charge/callback`
     }
-    const charge = await create_charge(amount, 'lockbox', config)
+
+    const charge = await create_charge(total, 'lockbox', config)
 
     console.log('charge res:', JSON.stringify(charge, null, 2))
 

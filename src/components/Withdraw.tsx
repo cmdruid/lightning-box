@@ -35,8 +35,14 @@ export default function Withdraw (
 
   useEffect(() => {
     let interval : NodeJS.Timer
-    if (withdraw !== undefined) {
-      if (charge === undefined) get_charge()
+    if (
+      withdraw === undefined && 
+      charge === undefined
+    ) {
+      create_charge()
+    } else if (charge === undefined) {
+      get_charge()
+    } else {
       interval = setInterval(() => get_charge(), 2000)
     }
     return () => clearInterval(interval)
@@ -46,17 +52,14 @@ export default function Withdraw (
    <div className="container">
       <div className="content">
           { withdraw === undefined && charge === undefined &&
-            <>
-              <p>Click the button below to create a lightning invoice.</p>
-              <div className="form">
-                <button onClick={create_charge}>Create Invoice</button>
-              </div>
-            </>
+            <pre>Loading ...</pre>
           }
           { charge !== undefined &&
             <>
               <p>Pay the lightning invoice below in order to unlock the box.</p>
               <QRCode data={charge.invoice.uri} />
+
+              <i>Invoice includes 2000 sat + 2% escrow fee.</i>
             </>  
           }
           <div className="status">
