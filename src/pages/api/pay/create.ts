@@ -72,7 +72,8 @@ async function handler (
     }
 
     await store.update({
-      status : 'paid',
+      status   : 'paid',
+      deposit  : null,
       withdraw : { charge_id, payment_id : data.id }
     })
 

@@ -32,7 +32,7 @@ async function handler (
     return res.status(403).end()
   }
 
-  const { payment_id } = withdraw
+  const { charge_id, payment_id } = withdraw
 
   if (payment_id === undefined) {
     return res.status(403).end()
@@ -63,7 +63,11 @@ async function handler (
       data.status  === 'completed' &&
       state.status === 'received'
     ) {
-      await store.update({ status : 'paid' })
+      await store.update({
+        status   : 'paid',
+        deposit  : null,
+        withdraw : { charge_id, payment_id : data.id }
+      })
     }
 
     return res.status(200).json(data)
