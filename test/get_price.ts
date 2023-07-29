@@ -13,3 +13,5 @@ export async function get_rate(amount : number) {
   // Return the ratio converted into satoshis.
   return Math.ceil(ratio * 100_000_000)
 }
+
+get_rate(1).then(e => console.log(e))

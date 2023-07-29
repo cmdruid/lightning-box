@@ -58,7 +58,7 @@ export default function Withdraw (
             <>
               <p>Pay the lightning invoice below in order to unlock the box.</p>
               <QRCode data={charge.invoice.uri} />
-
+              <br />
               <i>Invoice includes 2000 sat + 2% escrow fee.</i>
             </>  
           }
