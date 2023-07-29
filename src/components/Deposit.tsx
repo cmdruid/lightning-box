@@ -24,21 +24,21 @@ export default function Deposit (
   return (
     <div className="container">
       <div className="content">
-        <p>Deposit funds using the bill counter, then press the green button on the box to confirm:</p>
+        <p>Deposit funds using the bill counter, then long-press the green button on the box to confirm:</p>
         <Toast />
         <div className="status">
-          { deposit !== undefined &&
-            <>
-              <p>Deposit Address:</p>
-              <pre>{deposit.address}</pre>
-            </>
-          }
           { box !== undefined &&
             <>
               <p>Current Balance:</p>
               <pre>{box.amount} CUCKBUCKS</pre>
               <p>Box Status:</p>
               <pre>{JSON.stringify(box, null, 2)}</pre>
+            </>
+          }
+          { deposit !== undefined &&
+            <>
+              <p>Deposit Address:</p>
+              <pre>{deposit.address}</pre>
             </>
           }
         </div>

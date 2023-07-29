@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { withSessionAuth } from '@/middleware'
 import { create_charge }   from '@/lib/zbd'
 import { config }          from '@/schema'
+import { get_rate } from '@/lib/oracle'
 
 const { ESCROW_FEE, ESCROW_RATE } = config
 
@@ -33,7 +34,7 @@ async function handler (
     return res.status(403).end()
   }
 
-  const amount = deposit.amount,
+  const amount = await get_rate(deposit.amount),
         rate   = Math.ceil(amount * ESCROW_RATE),
         total  = (amount + rate + ESCROW_FEE) * 1000
 
