@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { withSessionAuth } from '@/middleware'
 import { MongoServerError } from 'mongodb'
+import { withSessionAuth }  from '@/middleware'
 
 export default withSessionAuth(handler)
 

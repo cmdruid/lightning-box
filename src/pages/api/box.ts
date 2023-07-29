@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { withTokenAuth } from '@/middleware'
 
-import { StoreData, schema }  from '@/schema'
+import {
+  StoreData,
+  schema
+} from '@/schema'
+
 import { is_diff } from '@/lib/utils'
 
 export default withTokenAuth(handler)

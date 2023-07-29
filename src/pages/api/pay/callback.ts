@@ -20,7 +20,7 @@ async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { body, headers, method, state, store } = req
+  const { body, headers, method, state } = req
   const { origin } = headers
   const { box, status } = state
 
