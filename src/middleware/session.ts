@@ -4,9 +4,12 @@ import {
   NextApiResponse
 } from 'next'
 
-import { config } from '@/schema'
+import { config }      from '@/schema'
 import { withSession } from '@/lib/session'
-import { now } from '@/lib/utils'
+import { now }         from '@/lib/utils'
+import assert from 'assert'
+
+const { DEBUG } = process.env
 
 const { SESSION_TIMEOUT } = config
 
@@ -19,50 +22,28 @@ export function session_auth (
   ) => {
     const { session, state, store } = req
 
-    const {
-      box, deposit, deposit_id, 
-      withdraw, withdraw_id, session_id, 
-      timestamp
-    } = state
+    assert.ok(state !== undefined)
+    
+    const { session_id, timestamp } = state
 
     const expires_at = timestamp + SESSION_TIMEOUT
 
     if (expires_at < now()) {
-      store.update({ session_id : null })
+      store.update({ session_id : undefined })
     }
 
     if (
-      session_id !== null &&
-      expires_at > now()  &&
+      session_id !== undefined &&
+      expires_at > now()       &&
       session.id === session_id
     ) {
       req.session.connected  = true
       req.session.status     = state.status
       req.session.expires_at = expires_at
-      req.session.box        = box ?? undefined
     } else {
       req.session.connected  = false
       req.session.status     = 'disconnected'
       req.session.expires_at = undefined
-      req.session.box        = undefined
-    }
-
-    if (
-      deposit_id !== null &&
-      session.id === deposit_id
-    ) {
-      req.session.deposit = deposit ?? undefined
-    } else {
-      req.session.deposit = undefined
-    }
-
-    if (
-      withdraw_id !== null &&
-      session.id === withdraw_id
-    ) {
-      req.session.withdraw = withdraw ?? undefined
-    } else {
-      req.session.withdraw = undefined
     }
 
     if (state.status === 'init') {
@@ -71,7 +52,7 @@ export function session_auth (
 
     await req.session.save()
 
-    console.log('session:', req.session)
+    if (DEBUG) console.log('session:', req.session)
 
     return handler(req, res)
   }

@@ -24,7 +24,7 @@ async function handler (
     return res.status(400).end()
   }
 
-  const { box, deposit, withdraw, status } = state
+  const { box, deposit_addr, status } = state
 
   try {
     const box_state = await schema.box_data.spa(body)
@@ -41,8 +41,9 @@ async function handler (
       amount <= 150
     )
 
-    const addr_ok = typeof deposit?.address     === 'string'
-    const is_paid = typeof withdraw?.payment_id === 'string'
+    const addr_ok = typeof deposit_addr === 'string'
+        , is_conf = status === 'locked'
+        , is_paid = status === 'paid'
 
     const ret = {
       state,
@@ -65,9 +66,11 @@ async function handler (
       store.update(update)
     }
 
+    console.log('Box state:', box)
+
     return res.status(200).json(ret)
   } catch (err) {
-    console.error(err)
+    console.error('api/box:', err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }

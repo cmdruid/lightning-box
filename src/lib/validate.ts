@@ -17,14 +17,14 @@ export function amount_ok (
 }
 
 export function address_ok (
-  addr ?: string
+  addr ?: string | null
 ) : addr is string {
   if (typeof addr !== 'string') {
     return false
   }
   try {
     const url = Buff.bech32(addr).str
-    return url.includes('https://')
+    return url.includes('http://') || url.includes('https://')
   } catch {
     return false
   }

@@ -6,23 +6,13 @@ const box_data = z.object({
   state  : z.enum([ 'await_addr', 'await_door', 'depositing', 'locked' ])
 })
 
-const deposit_data = z.object({
-  address : z.string(),
-  amount  : z.number()
-})
-
-const withdraw_data = z.object({
-  charge_id  : z.string(),
-  payment_id : z.string(),
-})
-
 const store_data = z.object({
   box          : box_data.nullish(),
-  deposit      : deposit_data.nullish(),
-  withdraw     : withdraw_data.nullish(),
-  deposit_id   : z.string().nullish(),
-  withdraw_id  : z.string().nullish(),
-  session_id   : z.string().nullish(),
+  deposit_addr : z.string().optional(),
+  deposit_amt  : z.number().optional(),
+  invoice_id   : z.string().optional(),
+  payment_id   : z.string().optional(),
+  session_id   : z.string().optional(),
   status       : z.string(),
   timestamp    : z.number()
 })
@@ -42,8 +32,6 @@ const lnurl_invoice = z.object({
 
 export const schema = {
   box_data,
-  deposit_data,
-  withdraw_data,
   lnurl_invoice,
   lnurl_params,
   store_data

@@ -18,11 +18,14 @@ export function useToast () : ToastAPI {
     ? 'block'
     : 'none'
 
-  const Toast = () => (
-    <div className="toast">
-      { <p style={{ display }}>{toast}</p> }
-    </div>
-  )
+  const Toast = ({ message } : { message ?: string }) => {
+    if (message !== undefined) setToast(message)
+    return (
+      <div className="toast">
+        { <p style={{ display }}>{toast}</p> }
+      </div>
+    )
+  }
 
   useEffect(() => {
     if (typeof toast === 'string') {

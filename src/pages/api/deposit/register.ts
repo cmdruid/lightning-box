@@ -30,21 +30,21 @@ async function handler (
   try {
     lnurl = await parse_address(address)
   } catch (err) {
-    const { message } = err as Error
-    return res.status(422).json({ error: message })
+    console.log('[LNURL]: Fetch address failed:', err)
+    return res.status(422).json({ error: 'Failed to validate LNURL. Please check it and try again.' })
   }
 
   try {
     const ret = await store.update({ 
-      deposit_id : session.id,
-      deposit    : { address: lnurl, amount : 0 },
-      status     : 'reserved'
+      deposit_addr : lnurl, 
+      deposit_amt  : 0,
+      status       : 'reserved'
     })
     req.session.status = 'reserved'
     await req.session.save()
     return res.status(200).json(ret)
   } catch (err) {
-    console.error(err)
+    console.error('api/deposit/register:', err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }
@@ -56,6 +56,7 @@ async function parse_address (
   if (address.includes('@')) {
     address = encode_address(address)
   }
-  await get_invoice(address, 1000)
+  const res = await get_invoice(address, 1000)
+  console.log('res:', res)
   return address
 }

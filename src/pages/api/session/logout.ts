@@ -17,14 +17,11 @@ async function handler (
 
   try {
     req.session.destroy()
-    await store.update({ session_id : null })
+    await store.update({ session_id : undefined })
     return res.status(200).json({ connected : false })
   } catch (err) {
-    const error = err as MongoServerError
-    if (error.code === 121) {
-      console.log(error?.errInfo?.details)
-    }
+    console.log('api/session/logout:', err)
     const { message } = err as Error
-    return res.status(500).json({ err: message })
+    return res.status(500).json({ error: message })
   }
 }

@@ -10,6 +10,8 @@ import {
 
 import * as validate from '@/lib/validate'
 
+const { DEBUG } = process.env
+
 const { SESSION_TIMEOUT } = config
 const { store_id } = STORE_DEFAULTS
 
@@ -32,29 +34,28 @@ export class StoreController extends Controller<StoreData> {
       data = await this.reset({ box : data.box })
     }
 
-    if (box_locked(data)) {
-      const { session_id } = data
-      const { ok, address, amount } = parse_deposit(data)
-      if (ok) {
-        update.deposit_id = session_id
-        update.deposit    = { address, amount }
-        update.status     = 'locked'
-      }
-    }
+    // if (box_locked(data)) {
+    //   console.log('box is locked!')
+    //   const { ok, deposit_addr, deposit_amt } = parse_deposit(data)
+    //   if (ok) {
+    //     update.deposit_addr = deposit_addr
+    //     update.deposit_amt  = deposit_amt
+    //     update.status       = 'locked'
+    //   }
+    // }
 
     if (withdraw_expired(data)) {
-      update.withdraw_id = null
-      update.withdraw    = null
+      update.invoice_id = undefined
     }
 
     if (reserve_expired(data)) {
-      update.deposit_id = null
-      update.deposit    = null
-      update.box        = null
+      update.deposit_addr = undefined
+      update.deposit_amt  = undefined
+      update.box          = null
     }
 
     if (session_expired(data)) {
-      update.session_id = null
+      update.session_id = undefined
     }
 
     if (Object.entries(update).length > 0) {
@@ -73,7 +74,7 @@ export class StoreController extends Controller<StoreData> {
     
     await this._hook(data)
 
-    console.log('db state:', data)
+    if (DEBUG) console.log('db state:', data)
 
     return data
   }
@@ -85,6 +86,7 @@ export class StoreController extends Controller<StoreData> {
 
   async update (template : Partial<StoreData>) : Promise<StoreData> {
     template = { ...template, timestamp: now() }
+    console.log('template:', template)
     return this._update({ store_id }, template)
   }
 }
@@ -107,21 +109,29 @@ export function box_locked (data : StoreData) {
   )
 }
 
+export function inv_received (data : StoreData) {
+  const { invoice_id, payment_id, status } = data
+  return (
+    status     === 'received' &&
+    invoice_id !== undefined  &&
+    payment_id === undefined
+  )
+}
+
 export function withdraw_expired (data : StoreData) {
-  const { withdraw_id, status, timestamp } = data
+  const { status, timestamp } = data
   return (
     status      === 'locked' &&
-    withdraw_id !== null     &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }
 
 export function reserve_expired (data : StoreData) {
-  const { box, deposit_id, status, timestamp } = data
+  const { box, deposit_addr, status, timestamp } = data
   return (
-    status     === 'reserved' &&
-    deposit_id !== null       &&
-    box?.state !== 'locked'   &&
+    status       === 'reserved' &&
+    deposit_addr !== undefined  &&
+    box?.state   !== 'locked'   &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }
@@ -129,7 +139,7 @@ export function reserve_expired (data : StoreData) {
 export function session_expired (data : StoreData) {
   const { session_id, timestamp } = data
   return (
-    session_id !== null &&
+    session_id !== undefined &&
     timestamp + SESSION_TIMEOUT < now()
   )
 }
@@ -149,26 +159,16 @@ function parse_status (data : StoreData) {
   return status
 }
 
-function parse_deposit (
-  data : StoreData
-) : { 
-  ok       : true
-  address  : string
-  amount   : number
-} | {
-  ok       : false
-  address ?: string
-  amount  ?: number | null
-} {
-  const { box, deposit } = data
-  const { address } = deposit ?? {}
-  const { amount }  = box     ?? {}
+// function parse_deposit (
+//   data : StoreData
+// ) {
+//   const { deposit_addr, deposit_amt } = data
 
-  if (
-    validate.address_ok(address) &&
-    validate.amount_ok(amount)
-  ) {
-    return { ok : true, address, amount }
-  }
-  return { ok : false, address, amount }
-}
+//   if (
+//     validate.address_ok(deposit_addr) &&
+//     validate.amount_ok(deposit_amt)
+//   ) {
+//     return { ok : true, deposit_addr, deposit_amt }
+//   }
+//   return { ok : false }
+// }

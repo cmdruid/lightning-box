@@ -9,25 +9,24 @@ async function handler (
   res: NextApiResponse
 ) {
   const { method, session, state, store } = req
-  const { deposit_id, deposit, status }   = state
+  const { deposit_addr, status } = state
 
-  if (
-    method  !== 'GET'      ||
-    status  !== 'reserved' ||
-    deposit === undefined
-  ) {
-    return res.status(400).end()
+  if (method  !== 'GET') {
+    return res.status(400).json({ error : 'Invalid request!' })
   }
 
-  if (deposit_id !== session.id) {
-    return res.status(401).end()
+  if (
+    status !== 'reserved' ||
+    deposit_addr === undefined
+  ) {
+    return res.status(401).json({ error: 'There is nothing to cancel!' })
   }
 
   try {
     const ret = await store.reset()
     return res.status(200).json(ret)
   } catch (err) {
-    console.error(err)
+    console.error('api/deposit/cancel:', err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }

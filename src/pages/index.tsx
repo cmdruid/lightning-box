@@ -5,9 +5,6 @@ import Login    from '@/components/Login'
 import Logout   from '@/components/Logout'
 import Register from '@/components/Register'
 import Deposit  from '@/components/Deposit'
-import Withdraw from '@/components/Withdraw'
-import Payment  from '@/components/Payment'
-import Success  from '@/components/Success'
 
 import {
   ClientSession,
@@ -15,10 +12,12 @@ import {
 } from '@/hooks/useSession'
 
 import { SessionData } from '@/schema'
+import Withdraw from '@/components/Withdraw'
+import Success from '@/components/Success'
 
 export default function Home () {
   const { session, error, loading } = useSession<SessionData>()
-  const { box, connected, deposit, expires_at, withdraw } = session
+  const { connected, expires_at }   = session
 
   const route = get_route(session, loading, error)
 
@@ -35,15 +34,14 @@ export default function Home () {
         <p>Peer-to-peer drop box on the ligthning network.</p>
       </div>
       <div className="main">
-        { route === 'loading'  && <Loading />  }
-        { route === 'error'    && <Error message={error} /> }
-        { route === 'activate' && <Activate /> }
-        { route === 'login'    && <Login />    }
+        { route === 'success'  && <Success />  }
+        { route === 'withdraw' && <Withdraw /> }
+        { route === 'deposit'  && <Deposit  /> }
         { route === 'register' && <Register /> }
-        { route === 'deposit'  && <Deposit  box={box} deposit={deposit}   /> }
-        { route === 'withdraw' && <Withdraw box={box} withdraw={withdraw} /> }
-        { route === 'payment'  && <Payment  box={box} withdraw={withdraw} /> }
-        { route === 'success'  && <Success  box={box} withdraw={withdraw} /> }
+        { route === 'login'    && <Login    /> }
+        { route === 'activate' && <Activate /> }
+        { route === 'error'    && <Error message={error} /> }
+        { route === 'loading'  && <Loading />  }
         { 
           connected &&
           expires_at !== undefined &&
@@ -59,15 +57,16 @@ function get_route (
   loading : boolean,
   error  ?: string
 ) : string {
-  const { connected, deposit, status } = session
+  const { connected, status } = session
   if (loading)               return 'loading'
   if (error !== undefined)   return 'error'
   if (status === 'init')     return 'activate'
-  if (!connected)            return 'login'
-  if (status === 'paid')     return 'payment'
-  if (status === 'received') return 'payment'
+  if (status === 'paid')     return 'success'
+  if (status === 'received') return 'success'
   if (status === 'locked')   return 'withdraw'
-  if (deposit !== undefined) return 'deposit'
-  if (status  === 'ready')   return 'register'
+  if (!connected)            return 'login'
+  if (status === 'reserved') return 'deposit'
+  if (status === 'deposit')  return 'deposit'
+  if (status === 'ready')    return 'register'
   return 'error'
 }

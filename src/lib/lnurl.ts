@@ -41,10 +41,12 @@ export async function get_invoice (
 ) {
   const url = Buff.bech32(lnurl).str
   const params_res = await fetch(url)
+
   if (!params_res.ok) {
     const { status, statusText } = params_res
     throw new Error(`LNURL params request failed: ${status} ${statusText}`)
   }
+  
   const params_data = await params_res.json()
 
   if (
@@ -65,7 +67,7 @@ export async function get_invoice (
 
   if (!inv_res.ok) {
     const { status, statusText } = params_res
-    throw new Error(`LNURL params request failed: ${status} ${statusText}`)
+    throw new Error(`LNURL invoice request failed: ${status} ${statusText}`)
   }
   
   const inv_data = await inv_res.json()
@@ -74,7 +76,7 @@ export async function get_invoice (
     inv_data.status !== undefined &&
     inv_data.status === 'ERROR'
   ) {
-    throw new Error(`LNURL params request failed: ${inv_data?.reason}`)
+    throw new Error(`LNURL invoice request error: ${inv_data?.reason}`)
   }
 
   const { pr } = schema.lnurl_invoice.parse(inv_data)

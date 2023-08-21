@@ -41,7 +41,7 @@ async function handler (
 
     return res.status(200).json(req.session)
   } catch (err) {
-    console.error(err)
+    console.error('api/session/login:', err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }

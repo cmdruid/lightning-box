@@ -8,6 +8,7 @@ import {
   NextApiRequest,
   NextApiResponse
 } from 'next'
+import { MongoServerError } from 'mongodb'
 
 declare module 'next' {
   interface NextApiRequest { 
@@ -35,8 +36,18 @@ export function middleware  (
       }
     }
 
-    req.store = new StoreController()
-    req.state = await req.store.get()
+    try {
+      req.store = new StoreController()
+      req.state = await req.store.get()
+    } catch (err) {
+      console.error('api/middleware:', err)
+      if (err instanceof MongoServerError) {
+         if (err.code === 121) {
+          console.log('Mongo schema validation failed:')
+          console.log(JSON.stringify(err?.errInfo?.details, null, 2))
+        }
+      }
+    }
 
     return handler(req, res)
   }

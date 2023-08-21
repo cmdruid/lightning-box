@@ -1,22 +1,34 @@
-import { useToast }    from '@/hooks/useToast'
-import { BoxData, DepositData } from '@/schema'
+import { useFetcher } from '@/hooks/useFetcher'
+import { useToast }   from '@/hooks/useToast'
 
-interface Props {
-  box     ?: BoxData
-  deposit ?: DepositData
+interface DepositData {
+  address   : string
+  box_state : string
+  box_amt   : number
 }
 
-export default function Deposit (
-  { box, deposit } : Props
-) {
-  const [ Toast, setToast ] = useToast()
+export default function Deposit () {
+  const { data, error, loading } = useFetcher<DepositData>('/api/deposit/status')
+  const [ Toast, set_toast ] = useToast()
 
   async function confirm () {
-    const res = await fetch(`./api/deposit/confirm`)
+    const res  = await fetch(`./api/deposit/confirm`)
+    const data = await res.json()
     if (!res.ok) {
-      setToast(`${res.status}: ${res.statusText}`)
+      set_toast(`${data.error}`)
     } else {
-      console.log('confirmed:', await res.json())
+      console.log('data:', data)
+      window.location.reload()
+    }
+  }
+
+  async function cancel () {
+    const res  = await fetch(`./api/deposit/cancel`)
+    const data = await res.json()
+    if (!res.ok) {
+      set_toast(`${data.error}`)
+    } else {
+      console.log('data:', data)
       window.location.reload()
     }
   }
@@ -24,24 +36,24 @@ export default function Deposit (
   return (
     <div className="container">
       <div className="content">
-        <p>Deposit funds using the bill counter, then long-press the green button on the box to confirm:</p>
-        <Toast />
-        <div className="status">
-          { box !== undefined &&
-            <>
-              <p>Current Balance:</p>
-              <pre>{box.amount} CUCKBUCKS</pre>
-              <p>Box Status:</p>
-              <pre>{JSON.stringify(box, null, 2)}</pre>
-            </>
-          }
-          { deposit !== undefined &&
-            <>
-              <p>Deposit Address:</p>
-              <pre>{deposit.address}</pre>
-            </>
-          }
-        </div>
+        { loading && <p>Loading...</p> }
+        { error && <pre>Error: {error}</pre>}
+        { !loading && !error && 
+          <>
+            <p>Deposit funds using the bill counter, then long-press the green button on the box to confirm:</p>
+            <button onClick={confirm}>Confirm</button>
+            <button onClick={cancel}>Cancel</button>
+            <div className="status">
+              <p>Current Amount:</p>
+              <pre>{data.box_amt} CUCKBUCKS</pre>
+              <p>Deposit Details:</p>
+              <pre>{JSON.stringify({
+                address   : data.address,
+                box_state : data.box_state
+              }, null, 2)}</pre>
+            </div>
+          </>
+        }
       </div>
     </div>
   )

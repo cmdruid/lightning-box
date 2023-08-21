@@ -8,56 +8,27 @@ const box = {
   }
 }
 
-const deposit = {
-  bsonType : [ 'object', 'null' ],
-  required : [ 'address', 'amount' ],
-  properties : {
-    address : { bsonType : 'string', },
-    amount  : { bsonType : 'number', },
-  }
-}
-
-const withdraw = {
-  bsonType : [ 'object', 'null' ],
-  required : [ 'charge_id' ],
-  properties : {
-    charge_id  : { bsonType : 'string' },
-    payment_id : { bsonType : 'string' }
-  }
-}
-
 const schema = {
 
   bsonType: 'object',
 
-  required: [
-    'box', 'deposit', 'withdraw', 'deposit_id', 'withdraw_id',
-    'session_id', 'status', 'store_id', 'timestamp'
-  ],
+  required: [ 'box', 'status', 'store_id', 'timestamp' ],
 
   properties : {
     box,
-    deposit,
-    withdraw,
-    store_id    : { bsonType : 'string' },
-    deposit_id  : { bsonType : [ 'string', 'null' ] },
-    withdraw_id : { bsonType : [ 'string', 'null' ] },
-    session_id  : { bsonType : [ 'string', 'null' ] },
-    status      : { bsonType : 'string' },
-    timestamp   : { bsonType : 'number' }
+    deposit_addr : { bsonType : [ 'string', 'null' ] },
+    deposit_amt  : { bsonType : [ 'number', 'null' ] },
+    invoice_id   : { bsonType : [ 'string', 'null' ] },
+    payment_id   : { bsonType : [ 'string', 'null' ] },
+    session_id   : { bsonType : [ 'string', 'null' ] },
+    store_id     : { bsonType : 'string' },
+    status       : { bsonType : 'string' },
+    timestamp    : { bsonType : 'number' }
   }
 }
 
 export const StoreModel = {
   name: 'store',
-
-  // indexes: [
-  //   {
-  //     name   : '_lookup_',
-  //     key    : { store_id: 1 },
-  //     unique : true
-  //   }
-  // ],
 
   options: {
     validator        : { $jsonSchema: schema },

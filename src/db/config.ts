@@ -1,5 +1,5 @@
-import { now }         from '@/lib/utils'
-import { StoreStatus } from '@/schema'
+import { now }       from '@/lib/utils'
+import { StoreEnum } from '@/schema'
 
 const { STORE_ID } = process.env
 
@@ -8,13 +8,13 @@ if (typeof STORE_ID !== 'string') {
 }
 
 export const STORE_DEFAULTS = {
-  store_id    : STORE_ID,
-  box         : null,
-  deposit     : null,
-  withdraw    : null,
-  deposit_id  : null,
-  withdraw_id : null,
-  session_id  : null,
-  status      : 'init' as StoreStatus,
-  timestamp   : now()
+  store_id     : STORE_ID,
+  box          : null,
+  deposit_addr : null,
+  deposit_amt  : null,
+  session_id   : null,
+  invoice_id   : null,
+  payment_id   : null,
+  status       : 'init' as StoreEnum,
+  timestamp    : now()
 }

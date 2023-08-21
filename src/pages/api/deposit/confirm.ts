@@ -10,40 +10,27 @@ async function handler (
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { method, session, state, store } = req
-  const { box, deposit_id, deposit, status } = state
+  const { method, state, store } = req
+  const { box, deposit_addr, deposit_amt } = state
 
-  if (
-    method  !== 'GET'      ||
-    status  !== 'reserved' ||
-    box     === null       ||
-    deposit === null
-  ) {
-    return res.status(400).end()
+  if (method !== 'GET') {
+    return res.status(400).json({ error : 'Invalid request!' })
   }
 
-  if (deposit_id !== session.id) {
-    return res.status(401).end()
-  }
-
-  const { amount } = box
-
-  if (
-    box?.state !== 'locked' ||
-    !validate.amount_ok(amount)
-  ) {
-    return res.status(403).end()
+  if (!validate.amount_ok(box?.amount)) {
+    return res.status(403).json({ error : 'The current deposit amount is invalid!' })
   }
 
   try {
     const ret = await store.update({
-      status     : 'locked',
-      deposit_id : session.id,
-      deposit    : { ...deposit, amount },
+      deposit_addr,
+      deposit_amt,
+      status : 'locked',
     })
     return res.status(200).json(ret)
   } catch (err) {
     console.error(err)
+    console.error('api/deposit/confirm:', err)
     const { message } = err as Error
     return res.status(500).json({ err: message })
   }
