@@ -41,8 +41,6 @@ export default function Deposit () {
         { !loading && !error && 
           <>
             <p>Deposit funds using the bill counter, then long-press the green button on the box to confirm:</p>
-            <button onClick={confirm}>Confirm</button>
-            <button onClick={cancel}>Cancel</button>
             <div className="status">
               <p>Current Amount:</p>
               <pre>{data.box_amt} CUCKBUCKS</pre>

@@ -16,8 +16,8 @@ import Withdraw from '@/components/Withdraw'
 import Success from '@/components/Success'
 
 export default function Home () {
-  const { session, error, loading } = useSession<SessionData>()
-  const { connected, expires_at }   = session
+  const { session, error, loading }    = useSession<SessionData>()
+  const { box, connected, expires_at } = session
 
   const route = get_route(session, loading, error)
 
@@ -35,7 +35,7 @@ export default function Home () {
       </div>
       <div className="main">
         { route === 'success'  && <Success />  }
-        { route === 'withdraw' && <Withdraw /> }
+        { route === 'withdraw' && <Withdraw box={box}/> }
         { route === 'deposit'  && <Deposit  /> }
         { route === 'register' && <Register /> }
         { route === 'login'    && <Login    /> }

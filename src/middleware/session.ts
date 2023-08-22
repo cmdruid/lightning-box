@@ -40,10 +40,12 @@ export function session_auth (
       req.session.connected  = true
       req.session.status     = state.status
       req.session.expires_at = expires_at
+      req.session.box        = state.box
     } else {
       req.session.connected  = false
       req.session.status     = 'disconnected'
       req.session.expires_at = undefined
+      req.session.box        = null
     }
 
     if (state.status === 'init') {

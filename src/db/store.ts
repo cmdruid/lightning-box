@@ -8,8 +8,6 @@ import {
   StoreData
 } from '@/schema'
 
-import * as validate from '@/lib/validate'
-
 const { DEBUG } = process.env
 
 const { SESSION_TIMEOUT } = config
@@ -31,7 +29,8 @@ export class StoreController extends Controller<StoreData> {
     }
 
     if (box_unlocked(data)) {
-      data = await this.reset({ box : data.box })
+      console.log('Box unlock detected! Resetting store ...')
+      await this.reset()
     }
 
     // if (box_locked(data)) {
@@ -45,17 +44,17 @@ export class StoreController extends Controller<StoreData> {
     // }
 
     if (withdraw_expired(data)) {
-      update.invoice_id = undefined
+      update.invoice_id = null
     }
 
     if (reserve_expired(data)) {
-      update.deposit_addr = undefined
-      update.deposit_amt  = undefined
+      update.deposit_addr = null
+      update.deposit_amt  = null
       update.box          = null
     }
 
     if (session_expired(data)) {
-      update.session_id = undefined
+      update.session_id = null
     }
 
     if (Object.entries(update).length > 0) {
@@ -109,14 +108,14 @@ export function box_locked (data : StoreData) {
   )
 }
 
-export function inv_received (data : StoreData) {
-  const { invoice_id, payment_id, status } = data
-  return (
-    status     === 'received' &&
-    invoice_id !== undefined  &&
-    payment_id === undefined
-  )
-}
+// export function inv_received (data : StoreData) {
+//   const { invoice_id, payment_id, status } = data
+//   return (
+//     status     === 'received' &&
+//     invoice_id !== undefined  &&
+//     payment_id === undefined
+//   )
+// }
 
 export function withdraw_expired (data : StoreData) {
   const { status, timestamp } = data
@@ -158,17 +157,3 @@ function parse_status (data : StoreData) {
 
   return status
 }
-
-// function parse_deposit (
-//   data : StoreData
-// ) {
-//   const { deposit_addr, deposit_amt } = data
-
-//   if (
-//     validate.address_ok(deposit_addr) &&
-//     validate.amount_ok(deposit_amt)
-//   ) {
-//     return { ok : true, deposit_addr, deposit_amt }
-//   }
-//   return { ok : false }
-// }

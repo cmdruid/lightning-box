@@ -21,6 +21,7 @@ export interface SessionData {
   status     ?: string
   expires_at ?: number
   updated_at  : number
+  box         : BoxData | null
 }
 
 export interface StoreData {

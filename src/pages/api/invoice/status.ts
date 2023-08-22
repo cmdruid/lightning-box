@@ -95,21 +95,9 @@ async function handler (
           status       : 'paid',
           deposit_addr : null,
           deposit_amt  : null,
-          payment_id   : pay_id
+          invoice_id   : null,
         })
       }
-
-      // if (pay_id !== null) {
-      //   pay_hash = Buff.hex(pay_id).base64
-      //   console.log('payment hash:', pay_hash)
-      //   const pay_res = await fetch_invoice(pay_hash)
-
-      //   if (!pay_res.ok) {
-      //     return res.status(400).json({ error : pay_res.error })
-      //   }
-
-      //   payment = pay_res.data
-      // }
     }
     
     console.log('session:', session)
