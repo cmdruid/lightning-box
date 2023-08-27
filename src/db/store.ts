@@ -33,16 +33,6 @@ export class StoreController extends Controller<StoreData> {
       await this.reset()
     }
 
-    // if (box_locked(data)) {
-    //   console.log('box is locked!')
-    //   const { ok, deposit_addr, deposit_amt } = parse_deposit(data)
-    //   if (ok) {
-    //     update.deposit_addr = deposit_addr
-    //     update.deposit_amt  = deposit_amt
-    //     update.status       = 'locked'
-    //   }
-    // }
-
     if (withdraw_expired(data)) {
       update.invoice_id = null
     }
@@ -85,7 +75,6 @@ export class StoreController extends Controller<StoreData> {
 
   async update (template : Partial<StoreData>) : Promise<StoreData> {
     template = { ...template, timestamp: now() }
-    console.log('template:', template)
     return this._update({ store_id }, template)
   }
 }
@@ -101,11 +90,8 @@ export function box_unlocked (data : StoreData) {
 }
 
 export function box_locked (data : StoreData) {
-  const { box, status } = data
-  return (
-    status     === 'reserved' &&
-    box?.state === 'locked'
-  )
+  const { box } = data
+  return box?.state === 'locked'
 }
 
 // export function inv_received (data : StoreData) {

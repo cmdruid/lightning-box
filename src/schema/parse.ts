@@ -3,7 +3,7 @@ import { z } from 'zod'
 const box_data = z.object({
   amount : z.number().nullable(),
   code   : z.string(),
-  state  : z.enum([ 'await_addr', 'await_door', 'depositing', 'locked' ])
+  state  : z.enum([ 'await_addr', 'await_door', 'reserved', 'locked', 'unknown' ])
 })
 
 const store_data = z.object({

@@ -4,7 +4,7 @@ const box = {
   properties : {
     amount : { bsonType : [ 'number', 'null' ] },
     code   : { bsonType : [ 'string', 'null' ] },
-    state  : { enum : [ 'await_addr', 'await_door', 'depositing', 'locked'] }
+    state  : { enum : [ 'await_addr', 'await_door', 'reserved', 'locked', 'unknown' ] }
   }
 }
 

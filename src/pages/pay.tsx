@@ -1,7 +1,7 @@
-import { useEffect }   from 'react'
+// import { useEffect }   from 'react'
 import { useRouter }   from 'next/router'
-import { useSession }  from '@/hooks/useSession'
-import { SessionData } from '@/schema'
+// import { useSession }  from '@/hooks/useSession'
+// import { SessionData } from '@/schema'
 import { useFetcher }  from '@/hooks/useFetcher'
 
 export default function Pay () {
@@ -11,17 +11,17 @@ export default function Pay () {
 
   const { data, error, loading } = useFetcher(`/api/invoice/status?id=${invoice_id}`)
 
-  const { session } = useSession<SessionData>()
+  // const { session } = useSession<SessionData>()
 
-  useEffect(() => {
-    if (
-      session.status !== 'locked'   &&
-      session.status !== 'received' &&
-      session.status !== 'paid'
-    ) {
-      window.location.assign(window.location.origin)
-    }
-  }, [ router, session ])
+  // useEffect(() => {
+  //   if (
+  //     session.status !== 'locked'   &&
+  //     session.status !== 'received' &&
+  //     session.status !== 'paid'
+  //   ) {
+  //     window.location.assign(window.location.origin)
+  //   }
+  // }, [ router, session ])
 
   return (
    <div className="container">

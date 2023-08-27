@@ -1,6 +1,6 @@
 import { ClientSession } from '@/hooks/useSession'
 
-export type BoxState  = 'await_addr' | 'await_door' | 'depositing' | 'locked'
+export type BoxState  = 'await_addr' | 'await_door' | 'reserved' | 'locked' | 'unknown'
 export type StoreEnum = 'init' | 'ready' | 'reserved' | 'locked' | 'received' | 'paid'
 
 declare module 'iron-session' {
